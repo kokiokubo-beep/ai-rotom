@@ -115,12 +115,15 @@ describe("analyze_matchup logic", () => {
       expect(filtered.length).toBeGreaterThan(0);
     });
 
-    it("learnset 未登録のポケモン（メガ進化後等）は全件返される（フォールバック）", () => {
-      // メガ進化後（例: メガフーディン）は learnset が独立していないため
-      // championsLearnsets[id] === undefined となる。
-      // この場合 filterResultsByLearnset は元の配列をそのまま返す。
+    it("メガ進化後は基本種の learnset を継承して絞り込まれる", () => {
+      // ゲーム仕様上、技を覚えるのは基本フォームであり、メガ進化後も技構成は
+      // 変わらない。data-store のロード時フォールバックにより
+      // championsLearnsets[megaId] には基本種の learnset が実体化されている
+      // （旧挙動: undefined → 全技 527 件で評価され出力が爆発していた）。
       const megaId = toDataId("Alakazam-Mega");
-      expect(championsLearnsets[megaId]).toBeUndefined();
+      expect(championsLearnsets[megaId]).toEqual(
+        championsLearnsets[toDataId("Alakazam")],
+      );
 
       const attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "メガフーディン" },
@@ -128,10 +131,11 @@ describe("analyze_matchup logic", () => {
       });
 
       const learnsetIds = getLearnsetMoveIdSet(megaId);
-      expect(learnsetIds.size).toBe(0);
+      expect(learnsetIds.size).toBeGreaterThan(0);
 
       const filtered = filterResultsByLearnset(attacks, learnsetIds, toDataId);
-      expect(filtered.length).toBe(attacks.length);
+      expect(filtered.length).toBeGreaterThan(0);
+      expect(filtered.length).toBeLessThan(attacks.length);
     });
 
     it("getLearnsetMoveIdSet は learnset JSON の技 ID を正規化して返す", () => {
