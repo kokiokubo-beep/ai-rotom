@@ -122,7 +122,28 @@ export const championsAbilities: AbilityEntry[] =
   abilitiesData as AbilityEntry[];
 export const championsItems: ItemEntry[] = itemsData as ItemEntry[];
 export const championsMoves: MoveEntry[] = movesData as MoveEntry[];
-export const championsLearnsets: LearnsetMap = learnsetsData as LearnsetMap;
+
+/**
+ * learnset 未登録の派生フォーム（メガシンカ等）に基本種の learnset を継承させる。
+ * ゲーム仕様上、技を覚えるのは基本フォームであり、メガ進化後も技構成は変わらない。
+ * これによりロード時点でフォールバックが実体化され、championsLearnsets を
+ * 直接参照する全ツール（matchup / find-counters / search 系等）に一律で効く。
+ */
+function buildLearnsetsWithFormeFallback(): LearnsetMap {
+  const base = learnsetsData as LearnsetMap;
+  const merged: LearnsetMap = { ...base };
+  for (const p of pokemonData as PokemonEntry[]) {
+    if (merged[p.id] === undefined && p.baseSpecies !== null) {
+      const baseLearnset = base[toDataId(p.baseSpecies)];
+      if (baseLearnset !== undefined) {
+        merged[p.id] = baseLearnset;
+      }
+    }
+  }
+  return merged;
+}
+
+export const championsLearnsets: LearnsetMap = buildLearnsetsWithFormeFallback();
 export const championsPokemon: PokemonEntry[] = pokemonData as PokemonEntry[];
 export const championsNatures: NatureEntry[] = naturesData as NatureEntry[];
 export const championsTypes: TypeEntry[] = typesData as TypeEntry[];
