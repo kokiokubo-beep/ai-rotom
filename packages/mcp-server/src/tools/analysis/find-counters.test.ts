@@ -433,19 +433,76 @@ describe("find_counters priorityMoves (先制技を持たないポケモン)", (
   });
 });
 
-describe("find_counters Top N 廃止", () => {
+describe("find_counters 自動選定の出力制御", () => {
   const LONG_RUN_TIMEOUT_MS = 60_000;
+  /** デフォルトの自動選定候補数上限 */
+  const DEFAULT_MAX_AUTO_CANDIDATES = 24;
   it(
-    "弱点タイプ攻撃技を覚える候補が 10 件を超える target では counters が 10 件を超える",
+    "自動選定は与ダメ上位に絞られ、poolInfo に選定内訳が載る",
     async () => {
       const TOP_N_LEGACY = 10;
       const output = await callFindCounters({
         target: { name: "ガブリアス" },
       });
+      // 旧 Top10 制限は廃止済み（10 件を超える）が、上限で絞られる
       expect(output.counters.length).toBeGreaterThan(TOP_N_LEGACY);
+      expect(output.counters.length).toBeLessThanOrEqual(
+        DEFAULT_MAX_AUTO_CANDIDATES,
+      );
+      expect(output.poolInfo.autoSelected).toBe(true);
+      expect(output.poolInfo.evaluated).toBeGreaterThanOrEqual(
+        output.poolInfo.returned,
+      );
+      expect(output.poolInfo.returned).toBe(output.counters.length);
+      // ガブリアスの弱点技持ちは 24 件を大きく超えるため必ず絞られる
+      expect(output.poolInfo.note).toBeDefined();
     },
     LONG_RUN_TIMEOUT_MS,
   );
+});
+
+describe("find_counters 出力の要約（技数上限）", () => {
+  /** デフォルトの outgoing / incoming 技数上限 */
+  const DEFAULT_MAX_MOVES = 8;
+
+  it("outgoing / incoming はデフォルトで上位 8 技に絞られ、maxPercent 降順で並ぶ", async () => {
+    const output = await callFindCounters({
+      target: { name: "ガブリアス" },
+      candidatePool: ["マニューラ"],
+    });
+    const weavile = output.counters[0];
+    expect(weavile.outgoing.length).toBeLessThanOrEqual(DEFAULT_MAX_MOVES);
+    expect(weavile.incoming.length).toBeLessThanOrEqual(DEFAULT_MAX_MOVES);
+    for (let i = 1; i < weavile.outgoing.length; i++) {
+      expect(weavile.outgoing[i - 1].maxPercent).toBeGreaterThanOrEqual(
+        weavile.outgoing[i].maxPercent,
+      );
+    }
+  });
+
+  it("maxMovesPerDirection 指定で技数上限を広げられる", async () => {
+    const output = await callFindCounters({
+      target: { name: "ガブリアス" },
+      candidatePool: ["マニューラ"],
+      maxMovesPerDirection: 100,
+    });
+    const weavile = output.counters[0];
+    expect(weavile.outgoing.length).toBeGreaterThan(DEFAULT_MAX_MOVES);
+  });
+
+  it("要約エントリは damage 配列や description を含まない（出力サイズ削減）", async () => {
+    const output = await callFindCounters({
+      target: { name: "ガブリアス" },
+      candidatePool: ["マニューラ"],
+    });
+    const sample = output.counters[0].outgoing[0] as unknown as Record<
+      string,
+      unknown
+    >;
+    expect(sample.damage).toBeUndefined();
+    expect(sample.description).toBeUndefined();
+    expect(typeof sample.moveJa).toBe("string");
+  });
 });
 
 /**
@@ -457,11 +514,16 @@ describe("find_counters Top N 廃止", () => {
 describe("find_counters の outgoing / incoming に STAB / タイプ相性フィールドが含まれる", () => {
   let output: FindCountersOutput;
 
-  /** ガブリアス (Dragon/Ground) の対策候補に Dark/Ice と Ice/Ground を置く */
+  /**
+   * ガブリアス (Dragon/Ground) の対策候補に Dark/Ice と Ice/Ground を置く。
+   * この describe は STAB / 倍率フィールドの伝播検証が目的のため、
+   * maxMovesPerDirection を広げて弱い技（等倍 Dark 技・Dig 等）も出力に含める。
+   */
   beforeAll(async () => {
     output = await callFindCounters({
       target: { name: "ガブリアス" },
       candidatePool: ["マニューラ", "マンムー"],
+      maxMovesPerDirection: 200,
     });
   });
 
