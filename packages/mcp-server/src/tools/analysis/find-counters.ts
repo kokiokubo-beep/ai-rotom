@@ -48,11 +48,20 @@ const SUPER_EFFECTIVE_MIN = 2;
 /** Status 技 */
 const STATUS_CATEGORY: MoveCategory = "Status";
 
+/** outgoing / incoming それぞれに含める技数の上限（ダメージ%降順の上位） */
+const MAX_MOVES_PER_DIRECTION = 8;
+
+/** candidatePool 未指定（自動選定）時に返す候補数の上限（与ダメ最大%の降順で選抜） */
+const MAX_AUTO_CANDIDATES = 24;
+
 const TOOL_NAME = "find_counters";
 const TOOL_DESCRIPTION =
   "target の弱点タイプ攻撃技を持つポケモンを候補プールとして抽出し、各候補の双方向ダメ計・素早さ・タイプ相性を返す。"
   + "`candidatePool` は文字列（名前のみ）と PokemonInput オブジェクト（ability / item / nature / evs 指定）を混在可能で、同一ポケモンの build 違い比較にも対応する。"
   + "正確な計算のため target 側の ability / item の指定を推奨（省略時は通常特性・持ち物なし扱い）。"
+  + `出力は要約形式：各候補の outgoing / incoming はダメージ%上位 ${MAX_MOVES_PER_DIRECTION} 技、`
+  + `candidatePool 未指定の自動選定は与ダメ上位 ${MAX_AUTO_CANDIDATES} 候補まで（poolInfo に選定内訳）。`
+  + "全技の詳細ロールが必要な場合は calculate_damage_all_moves を使うこと。"
   + "判断（受け型か速度勝ち型か等）は AI が行う前提。ポケモンチャンピオンズ対応。";
 
 const battleFormatValues = ["singles", "doubles"] as const;
@@ -73,6 +82,22 @@ const inputSchema = {
     .enum(battleFormatValues)
     .optional()
     .describe("対戦形式（省略時: singles）"),
+  maxMovesPerDirection: z
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .describe(
+      `outgoing / incoming に含める技数の上限（ダメージ%降順の上位。省略時: ${MAX_MOVES_PER_DIRECTION}）`,
+    ),
+  maxCandidates: z
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .describe(
+      `自動選定時に返す候補数の上限（与ダメ最大%の降順で選抜。省略時: ${MAX_AUTO_CANDIDATES}。candidatePool 指定時は無視）`,
+    ),
 };
 
 type CandidatePoolItem = z.infer<typeof candidatePoolItemSchema>;
@@ -106,11 +131,28 @@ interface CounterPokemonProfile {
   build?: CounterBuildInfo;
 }
 
+/**
+ * find_counters 出力用のダメ計要約。
+ * DamageCalcResult から嵩張るフィールド（16 ロールの damage 配列・description 等）を
+ * 落とし、判断に必要な %・確定数・相性情報だけを残す。
+ */
+export interface CounterDamageSummary {
+  move: string;
+  moveJa?: string;
+  minPercent: number;
+  maxPercent: number;
+  koChance: string;
+  moveType: string;
+  typeMultiplier: number;
+  isStab: boolean;
+  effectivePowerMultiplier: number;
+}
+
 export interface CounterEntry {
   pokemon: CounterPokemonProfile;
   speedCompare: SpeedComparison;
-  outgoing: DamageCalcResult[];
-  incoming: DamageCalcResult[];
+  outgoing: CounterDamageSummary[];
+  incoming: CounterDamageSummary[];
   /**
    * 候補が覚える先制技の一覧（priority 降順）。
    * 技単位の静的 priority のみ。特性補正（いたずらごころ等）は含まない。
@@ -130,9 +172,55 @@ export interface TargetInfo {
   priorityMoves: PriorityMoveInfo[];
 }
 
+/**
+ * 候補プールの選定内訳。
+ * 自動選定で MAX_AUTO_CANDIDATES に絞られた場合、その事実を明示する
+ * （呼び出し側が「全候補を見た」と誤認しないため）。
+ */
+export interface CandidatePoolInfo {
+  /** ダメ計まで評価した候補数 */
+  evaluated: number;
+  /** 出力に含めた候補数 */
+  returned: number;
+  /** candidatePool 未指定の自動選定だったか */
+  autoSelected: boolean;
+  note?: string;
+}
+
 export interface FindCountersOutput {
   target: TargetInfo;
+  poolInfo: CandidatePoolInfo;
   counters: CounterEntry[];
+}
+
+/**
+ * DamageCalcResult 配列をダメージ%降順の上位 MAX_MOVES_PER_DIRECTION 件に絞り、
+ * 判断に必要なフィールドだけの要約に変換する。
+ */
+function summarizeDamageResults(
+  results: readonly DamageCalcResult[],
+  maxMoves: number,
+): CounterDamageSummary[] {
+  return [...results]
+    .sort((a, b) => b.maxPercent - a.maxPercent)
+    .slice(0, maxMoves)
+    .map((r) => {
+      const summary: CounterDamageSummary = {
+        move: r.move,
+        minPercent: r.minPercent,
+        maxPercent: r.maxPercent,
+        koChance: r.koChance,
+        moveType: r.moveType,
+        typeMultiplier: r.typeMultiplier,
+        isStab: r.isStab,
+        effectivePowerMultiplier: r.effectivePowerMultiplier,
+      };
+      const moveJa = moveNameResolver.toJapanese(r.move);
+      if (moveJa !== undefined) {
+        summary.moveJa = moveJa;
+      }
+      return summary;
+    });
 }
 
 /**
@@ -392,7 +480,9 @@ export function registerFindCountersTool(server: McpServer): void {
         gen,
       );
 
-      const counterEntries: Array<CounterEntry & { sortKey: string }> = [];
+      const counterEntries: Array<
+        CounterEntry & { sortKey: string; bestOutgoingMax: number }
+      > = [];
 
       for (const candidate of candidateBuilds) {
         const candidateEntry = candidate.entry;
@@ -461,21 +551,47 @@ export function registerFindCountersTool(server: McpServer): void {
           pokemonProfile.build = extractBuildInfo(candidateInput);
         }
 
+        const maxMoves = args.maxMovesPerDirection ?? MAX_MOVES_PER_DIRECTION;
+        const outgoingSummary = summarizeDamageResults(outgoing, maxMoves);
+        const incomingSummary = summarizeDamageResults(incoming, maxMoves);
+
         counterEntries.push({
           pokemon: pokemonProfile,
           speedCompare,
-          outgoing,
-          incoming,
+          outgoing: outgoingSummary,
+          incoming: incomingSummary,
           priorityMoves: buildPriorityMoves(candidateEntry.id),
           sortKey: buildSignature(candidate),
+          bestOutgoingMax: outgoingSummary[0]?.maxPercent ?? 0,
         });
       }
 
-      counterEntries.sort((a, b) => {
+      // 自動選定時は与ダメ最大%の上位に絞る（出力爆発の防止）。
+      // 明示プール指定時は呼び出し側がプールを制御しているため絞らない。
+      const autoSelected = args.candidatePool === undefined;
+      const maxCandidates = args.maxCandidates ?? MAX_AUTO_CANDIDATES;
+      const evaluatedCount = counterEntries.length;
+      let selectedEntries = counterEntries;
+      if (autoSelected && counterEntries.length > maxCandidates) {
+        selectedEntries = [...counterEntries]
+          .sort((a, b) => b.bestOutgoingMax - a.bestOutgoingMax)
+          .slice(0, maxCandidates);
+      }
+
+      selectedEntries.sort((a, b) => {
         const nameOrder = a.pokemon.name.localeCompare(b.pokemon.name);
         if (nameOrder !== 0) return nameOrder;
         return a.sortKey.localeCompare(b.sortKey);
       });
+
+      const poolInfo: CandidatePoolInfo = {
+        evaluated: evaluatedCount,
+        returned: selectedEntries.length,
+        autoSelected,
+      };
+      if (selectedEntries.length < evaluatedCount) {
+        poolInfo.note = `自動選定のため与ダメ最大%の上位 ${maxCandidates} 候補に絞った。特定の候補を評価したい場合は candidatePool で明示指定すること。`;
+      }
 
       const output: FindCountersOutput = {
         target: {
@@ -485,7 +601,11 @@ export function registerFindCountersTool(server: McpServer): void {
           typeWeaknesses,
           priorityMoves: buildPriorityMoves(targetEntry.id),
         },
-        counters: counterEntries.map(({ sortKey: _sortKey, ...rest }) => rest),
+        poolInfo,
+        counters: selectedEntries.map(
+          ({ sortKey: _sortKey, bestOutgoingMax: _bestOutgoingMax, ...rest }) =>
+            rest,
+        ),
       };
 
       return withHint({ type: "text" as const, text: JSON.stringify(output) });

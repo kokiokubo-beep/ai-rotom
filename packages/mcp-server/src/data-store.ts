@@ -129,15 +129,26 @@ export const championsMoves: MoveEntry[] = movesData as MoveEntry[];
  * これによりロード時点でフォールバックが実体化され、championsLearnsets を
  * 直接参照する全ツール（matchup / find-counters / search 系等）に一律で効く。
  */
+/**
+ * フォーム別 learnset がこの技数以下なら「フォーム専用技のみの追記データ」とみなし、
+ * 基本種の learnset と合算する。実データではロトム各フォームが専用技1件のみ
+ * （例: rotomwash = ハイドロポンプのみ）である一方、独自の技構成を持つ
+ * 地域フォーム等はフル登録（45件以上）のため、この閾値で安全に判別できる。
+ */
+const FORME_ADDITIVE_LEARNSET_MAX = 9;
+
 function buildLearnsetsWithFormeFallback(): LearnsetMap {
   const base = learnsetsData as LearnsetMap;
   const merged: LearnsetMap = { ...base };
   for (const p of pokemonData as PokemonEntry[]) {
-    if (merged[p.id] === undefined && p.baseSpecies !== null) {
-      const baseLearnset = base[toDataId(p.baseSpecies)];
-      if (baseLearnset !== undefined) {
-        merged[p.id] = baseLearnset;
-      }
+    if (p.baseSpecies === null) continue;
+    const baseLearnset = base[toDataId(p.baseSpecies)];
+    if (baseLearnset === undefined) continue;
+    const own = merged[p.id];
+    if (own === undefined) {
+      merged[p.id] = baseLearnset;
+    } else if (own.length <= FORME_ADDITIVE_LEARNSET_MAX) {
+      merged[p.id] = [...new Set([...baseLearnset, ...own])];
     }
   }
   return merged;
