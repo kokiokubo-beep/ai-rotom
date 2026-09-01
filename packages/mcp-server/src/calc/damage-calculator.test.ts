@@ -294,6 +294,55 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
   });
 });
 
+describe("DamageCalculatorAdapter weight-dependent moves", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  // @smogon/calc は重さ依存技の威力を description に "(<BP> BP) " 形式で出す (desc.ts)。
+  // 威力区分: 200kg以上=120 / 100kg以上=100 / 50kg以上=80 / 25kg以上=60 / 10kg以上=40 / 未満=20
+
+  it("ガブリアス (95kg) へのくさむすびは 80 BP で計算される", () => {
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ガブリアス" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(80 BP");
+  });
+
+  it("メガルカリオZ (49.4kg) へのくさむすびは 60 BP で計算される", () => {
+    // weightkg が 0 のままだと重さ区分の最低威力 (20 BP) で計算されてしまう。
+    // pokemon.json の weightkg (49.4) が overrides で正しく注入されていることの確認。
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(60 BP");
+  });
+
+  it("ギルガルド(ブレードフォルム) (53kg) へのくさむすびは 80 BP で計算される", () => {
+    // weightkg=0 から実値へ修正した既存 5 件のうちの回帰確認。
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ギルガルド(ブレードフォルム)" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(80 BP");
+  });
+});
+
 describe("DamageCalculatorAdapter.calculateAllMoves", () => {
   const adapter = new DamageCalculatorAdapter(
     {
