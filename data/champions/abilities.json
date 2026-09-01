@@ -63,6 +63,13 @@
     "shortDesc": "Protects user/allies from Attract, Disable, Encore, Heal Block, Taunt, and Torment."
   },
   {
+    "id": "auraguard",
+    "name": "Aura Guard",
+    "nameJa": "はどうのぼうご",
+    "desc": "This Pokemon receives 1/2 damage from contact moves.",
+    "shortDesc": "1/2 damage from contact moves."
+  },
+  {
     "id": "battlearmor",
     "name": "Battle Armor",
     "nameJa": "カブトアーマー",
