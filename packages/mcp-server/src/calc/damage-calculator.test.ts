@@ -491,3 +491,43 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
     expect(pSolarPower.ability).toBe("Solar Power");
   });
 });
+
+describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  // このテストが落ちたら calc が Aura Guard を実装した合図。
+  // README と instructions.ts の注記を見直してからテストを更新する。
+  it("メガルカリオZ の Aura Guard は接触物理技のダメージを軽減しない", () => {
+    // はどうのぼうご (Aura Guard) は「接触技のダメージ半減」効果を持つが、
+    // @smogon/calc Gen 0 は本特性を未実装。ものひろい (Pickup) は champions.ts の
+    // 特性処理に一切登場せず、かつ持ち物を持たせていないためこの計算に無関係な
+    // 特性であり、比較対象として使う。
+    // フレアドライブ (接触・Fire) を選んだのは Fighting/Steel 複合の
+    // メガルカリオZ に等倍以上が確実に入り、ダメージ 0 ロールによる
+    // kochance() の内部エラーを避けるため。
+    const withAuraGuard = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ" },
+      moveName: "フレアドライブ",
+    });
+
+    const withUnrelatedAbility = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ", ability: "ものひろい" },
+      moveName: "フレアドライブ",
+    });
+
+    expect(withAuraGuard.min).toBeGreaterThan(0);
+    expect(withAuraGuard.min).toBe(withUnrelatedAbility.min);
+    expect(withAuraGuard.max).toBe(withUnrelatedAbility.max);
+  });
+});
