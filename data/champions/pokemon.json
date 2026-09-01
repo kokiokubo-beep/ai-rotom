@@ -71,7 +71,8 @@
     "weightkg": 47,
     "baseSpecies": null,
     "otherFormes": [
-      "Absol-Mega"
+      "Absol-Mega",
+      "Absol-Mega-Z"
     ]
   },
   {
@@ -2499,7 +2500,8 @@
     "weightkg": 95,
     "baseSpecies": null,
     "otherFormes": [
-      "Garchomp-Mega"
+      "Garchomp-Mega",
+      "Garchomp-Mega-Z"
     ]
   },
   {
@@ -3729,7 +3731,8 @@
     "weightkg": 54,
     "baseSpecies": null,
     "otherFormes": [
-      "Lucario-Mega"
+      "Lucario-Mega",
+      "Lucario-Mega-Z"
     ]
   },
   {
@@ -7868,6 +7871,74 @@
     ],
     "weightkg": 99,
     "baseSpecies": "Falinks",
+    "otherFormes": null
+  },
+  {
+    "id": "lucariomegaz",
+    "name": "Lucario-Mega-Z",
+    "nameJa": "メガルカリオZ",
+    "types": [
+      "Fighting",
+      "Steel"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 100,
+      "def": 70,
+      "spa": 164,
+      "spd": 70,
+      "spe": 151
+    },
+    "abilities": [
+      "Aura Guard"
+    ],
+    "weightkg": 49.4,
+    "baseSpecies": "Lucario",
+    "otherFormes": null
+  },
+  {
+    "id": "garchompmegaz",
+    "name": "Garchomp-Mega-Z",
+    "nameJa": "メガガブリアスZ",
+    "types": [
+      "Dragon"
+    ],
+    "baseStats": {
+      "hp": 108,
+      "atk": 130,
+      "def": 85,
+      "spa": 141,
+      "spd": 85,
+      "spe": 151
+    },
+    "abilities": [
+      "Levitate"
+    ],
+    "weightkg": 99,
+    "baseSpecies": "Garchomp",
+    "otherFormes": null
+  },
+  {
+    "id": "absolmegaz",
+    "name": "Absol-Mega-Z",
+    "nameJa": "メガアブソルZ",
+    "types": [
+      "Dark",
+      "Ghost"
+    ],
+    "baseStats": {
+      "hp": 65,
+      "atk": 154,
+      "def": 60,
+      "spa": 75,
+      "spd": 60,
+      "spe": 151
+    },
+    "abilities": [
+      "Sharpness"
+    ],
+    "weightkg": 49,
+    "baseSpecies": "Absol",
     "otherFormes": null
   }
 ]

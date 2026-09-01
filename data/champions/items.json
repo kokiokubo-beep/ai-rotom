@@ -18,6 +18,15 @@
     "megaEvolves": "Absol"
   },
   {
+    "id": "absolitez",
+    "name": "Absolite Z",
+    "nameJa": "アブソルナイトＺ",
+    "desc": "If held by an Absol, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by an Absol, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Absol-Mega-Z",
+    "megaEvolves": "Absol"
+  },
+  {
     "id": "aerodactylite",
     "name": "Aerodactylite",
     "nameJa": "プテラナイト",
@@ -489,6 +498,15 @@
     "megaEvolves": "Garchomp"
   },
   {
+    "id": "garchompitez",
+    "name": "Garchompite Z",
+    "nameJa": "ガブリアスナイトＺ",
+    "desc": "If held by a Garchomp, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by a Garchomp, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Garchomp-Mega-Z",
+    "megaEvolves": "Garchomp"
+  },
+  {
     "id": "gardevoirite",
     "name": "Gardevoirite",
     "nameJa": "サーナイトナイト",
@@ -710,6 +728,15 @@
     "desc": "If held by a Lucario, this item allows it to Mega Evolve in battle.",
     "shortDesc": "If held by a Lucario, this item allows it to Mega Evolve in battle.",
     "megaStone": "Lucario-Mega",
+    "megaEvolves": "Lucario"
+  },
+  {
+    "id": "lucarionitez",
+    "name": "Lucarionite Z",
+    "nameJa": "ルカリオナイトＺ",
+    "desc": "If held by a Lucario, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by a Lucario, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Lucario-Mega-Z",
     "megaEvolves": "Lucario"
   },
   {
