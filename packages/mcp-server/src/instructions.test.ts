@@ -39,6 +39,13 @@ describe("SERVER_INSTRUCTIONS", () => {
     expect(SERVER_INSTRUCTIONS).toContain("テラスタル");
   });
 
+  it("documents that some abilities are not reflected in damage calculation", () => {
+    // 計算エンジンが一部特性に未対応であることと、get_ability_info での確認を促す
+    // 注記が instructions に存在することを固定化する。
+    expect(SERVER_INSTRUCTIONS).toContain("計算エンジンが未対応");
+    expect(SERVER_INSTRUCTIONS).toContain("get_ability_info");
+  });
+
   it("declares the session-wide scope as Pokemon Champions", () => {
     // セッション内のポケモン話題全般をポケチャン仕様として扱わせる
     // スコープ宣言が先頭付近に存在することを保証する。
