@@ -61,6 +61,17 @@ describe("マスターデータの不変条件", () => {
 
       expect(invalidRefs).toEqual([]);
     });
+
+    it("abilities の参照先が abilities.json に実在する", () => {
+      const abilityNames = new Set(championsAbilities.map((a) => a.name));
+      const invalidRefs = championsPokemon.flatMap((p) =>
+        p.abilities
+          .filter((ability) => !abilityNames.has(ability))
+          .map((ability) => ({ id: p.id, ability })),
+      );
+
+      expect(invalidRefs).toEqual([]);
+    });
   });
 
   describe("items.json のメガストーン参照", () => {

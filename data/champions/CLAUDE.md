@@ -45,6 +45,7 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
 - **重複禁止**: 同一 id は 1 エントリのみ
 - **相互参照の整合性**:
   - `pokemon.baseSpecies` / `pokemon.otherFormes` → `pokemon.json` に対応エントリが存在
+  - `pokemon.abilities` → `abilities.json` に対応エントリが存在
   - `items.megaStone` / `items.megaEvolves` → `pokemon.json` に対応エントリが存在
   - `learnsets` のキー → `pokemon.json` の id に存在
   - `learnsets` の技 ID → `moves.json` に存在
