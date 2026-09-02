@@ -56,6 +56,9 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
   `pokemon.json` から削除する（攻略サイトの粒度に揃える）
 - 攻略サイトのデータを正として訂正する場合は、scripts の再生成ではなく
   **直接 JSON を編集**する（scripts は削除済み）
+- `moves.json` に技を追加するときは `@smogon/calc` Gen 0 の技リストに存在するか
+  必ず確認する。Gen 0 に無い技はダメージ計算が例外にならず **0 ダメージを黙って返す**
+  （species と違い move overrides はアダプタ未配線のため）
 
 ## 仕様差分の取り扱い
 
