@@ -140,4 +140,19 @@ describe("マスターデータの不変条件", () => {
       expect(invalidRefs).toEqual([]);
     });
   });
+
+  describe("learnsets が未整備のベースフォーム", () => {
+    it("learnsets にキーが無いベースフォームは既知の 2 体に限定される", () => {
+      const learnsetKeys = new Set(Object.keys(championsLearnsets));
+      const missingLearnsetBaseIds = championsPokemon
+        .filter((p) => p.baseSpecies === null && !learnsetKeys.has(p.id))
+        .map((p) => p.id)
+        .sort();
+
+      // ゴリランダー・セグレイブはポケチャン版の習得技データが未公表のため、
+      // learnset キーを意図的に持たない。learnset 追補時にこのテストが落ちたら、
+      // テストごと削除する（追補完了の合図）。
+      expect(missingLearnsetBaseIds).toEqual(["baxcalibur", "rillaboom"]);
+    });
+  });
 });
