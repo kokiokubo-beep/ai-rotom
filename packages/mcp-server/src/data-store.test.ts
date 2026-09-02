@@ -150,8 +150,8 @@ describe("マスターデータの不変条件", () => {
         .sort();
 
       // ゴリランダー・セグレイブはポケチャン版の習得技データが未公表のため、
-      // learnset キーを意図的に持たない。learnset 追補時にこのテストが落ちたら、
-      // テストごと削除する（追補完了の合図）。
+      // learnset キーを意図的に持たない。追補完了後はこのテストを削除せず、
+      // 期待値を空配列（toEqual([])）に反転して「全ベースフォームが learnset を持つ」恒久不変条件として残す。
       expect(missingLearnsetBaseIds).toEqual(["baxcalibur", "rillaboom"]);
     });
   });

@@ -103,6 +103,7 @@ describe("@smogon/calc gen0 に収録されていない新規種族", () => {
     // 落ちたら vendored calc が両種を収録した合図。
     // その時は overrides の意味が変わるので関連テストを見直す。
     expect(gen.species.get(toID("Rillaboom"))).toBeUndefined();
+    expect(gen.species.get(toID("Baxcalibur"))).toBeUndefined();
   });
 });
 
