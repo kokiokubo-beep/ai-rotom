@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculate, Generations, Pokemon, Move, Field } from "@smogon/calc";
+import { calculate, Generations, Pokemon, Move, Field, toID } from "@smogon/calc";
 import { DamageCalculatorAdapter } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
 import { pokemonEntryProvider } from "../data-store";
@@ -93,6 +93,16 @@ describe("@smogon/calc Champions integration", () => {
     const [minNormal] = resultNormal.range();
 
     expect(minBoosted).toBeGreaterThan(minNormal);
+  });
+});
+
+describe("@smogon/calc gen0 に収録されていない新規種族", () => {
+  const gen = Generations.get(CHAMPIONS_GEN_NUM);
+
+  it("Rillaboom は gen0 の内蔵種族データに存在しない", () => {
+    // 落ちたら vendored calc が両種を収録した合図。
+    // その時は overrides の意味が変わるので関連テストを見直す。
+    expect(gen.species.get(toID("Rillaboom"))).toBeUndefined();
   });
 });
 
@@ -292,6 +302,19 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
     // description に Huge Power の文字列が含まれることを期待
     expect(withHugePower.description).toContain("Starmie-Mega");
   });
+
+  it("セグレイブのつららおとしはゴリランダーに効果抜群になる", () => {
+    // @smogon/calc Gen 0 に Rillaboom species は存在しないため、defender.types は
+    // pokemon.json の overrides（Grass 単タイプ）のみから決まる。
+    // つららおとし (Ice) × Grass 単タイプ = 2 倍であることが types 注入の証明になる。
+    const result = adapter.calculate({
+      attacker: { name: "セグレイブ" },
+      defender: { name: "ゴリランダー" },
+      moveName: "つららおとし",
+    });
+
+    expect(result.typeMultiplier).toBe(2);
+  });
 });
 
 describe("DamageCalculatorAdapter weight-dependent moves", () => {
@@ -340,6 +363,19 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
     });
 
     expect(result.description).toContain("(80 BP");
+  });
+
+  it("セグレイブ (210kg) へのくさむすびは 120 BP で計算される", () => {
+    // @smogon/calc Gen 0 に Baxcalibur species は存在しないため、weightkg は
+    // pokemon.json の overrides 以外に注入元が無い。この計算が成立すること自体が
+    // overrides 経由のデータ供給が唯一のデータ源であることの証明になる。
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "セグレイブ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(120 BP");
   });
 });
 
