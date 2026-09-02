@@ -46,6 +46,12 @@ describe("SERVER_INSTRUCTIONS", () => {
     expect(SERVER_INSTRUCTIONS).toContain("get_ability_info");
   });
 
+  it("documents that some pokemon have unmaintained learnset data", () => {
+    // learnset 欠落を「技を覚えない」と誤読させない意図の注記を固定化する。
+    expect(SERVER_INSTRUCTIONS).toContain("未整備");
+    expect(SERVER_INSTRUCTIONS).toContain("learnableMoveCount");
+  });
+
   it("declares the session-wide scope as Pokemon Champions", () => {
     // セッション内のポケモン話題全般をポケチャン仕様として扱わせる
     // スコープ宣言が先頭付近に存在することを保証する。
