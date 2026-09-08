@@ -56,7 +56,7 @@ export interface DamageCalcResult {
   maxPercent: number;
   koChance: string;
   description: string;
-  /** 技タイプ（英名）。@smogon/calc の Move.type をそのまま保持する */
+  /** 技タイプ（英名）。スカイスキン等の特性・天候による技タイプ変換を反映済みの、メカニクス適用後のタイプ */
   moveType: string;
   /** 防御側複合タイプに対する相性倍率 (0/0.25/0.5/1/2/4) */
   typeMultiplier: number;
