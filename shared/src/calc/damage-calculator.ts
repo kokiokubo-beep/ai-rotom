@@ -169,7 +169,15 @@ export class DamageCalculatorAdapter {
 
     const koResult = result.kochance();
     const damageArray = flattenDamage(result.damage);
-    const typeMetrics = buildTypeMetrics(gen, move, attacker, defender);
+    // @smogon/calc の calculate() は move/attacker/defender を clone してから計算し、
+    // スカイスキン等のタイプ変換はクローン側にだけ反映される。入力側の move を読むと
+    // 変換前タイプでメトリクスを計算してしまうため、Result が保持する計算後のクローンを読む。
+    const typeMetrics = buildTypeMetrics(
+      gen,
+      result.move,
+      result.attacker,
+      result.defender,
+    );
 
     return {
       attacker: attackerName,
@@ -276,7 +284,13 @@ export class DamageCalculatorAdapter {
 
         const koResult = result.kochance();
         const damageArray = flattenDamage(result.damage);
-        const typeMetrics = buildTypeMetrics(gen, move, attacker, defender);
+        // 計算後のクローンを読む理由は calculate() 内の同種コメントを参照。
+        const typeMetrics = buildTypeMetrics(
+          gen,
+          result.move,
+          result.attacker,
+          result.defender,
+        );
 
         results.push({
           attacker: attackerName,

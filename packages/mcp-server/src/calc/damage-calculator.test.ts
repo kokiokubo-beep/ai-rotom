@@ -568,3 +568,55 @@ describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
     expect(withAuraGuard.max).toBe(withUnrelatedAbility.max);
   });
 });
+
+describe("DamageCalculatorAdapter 計算後の技タイプからメトリクスを算出", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  it("calculate で Aerilate によるタイプ変換が moveType に反映される", () => {
+    const result = adapter.calculate({
+      attacker: { name: "メガカイロス" },
+      defender: { name: "ゲンガー" },
+      moveName: "すてみタックル",
+    });
+
+    expect(result.moveType).toBe("Flying");
+    expect(result.isStab).toBe(true);
+    expect(result.typeMultiplier).toBe(1);
+    expect(result.min).toBeGreaterThan(0);
+  });
+
+  it("calculateAllMoves でも Aerilate のタイプ変換が結果に反映される", () => {
+    const results = adapter.calculateAllMoves({
+      attacker: { name: "メガカイロス" },
+      defender: { name: "ゲンガー" },
+    });
+
+    const doubleEdge = results.find((r) => r.move === "Double-Edge");
+
+    expect(doubleEdge).toBeDefined();
+    expect(doubleEdge!.moveType).toBe("Flying");
+  });
+
+  it("field 起因の技タイプ変換（ウェザーボール）も moveType に反映される", () => {
+    // -ate 系とは独立した field 起因の変換経路を押さえる（静的マップ applyOffensiveTypeOverride への差し戻しリファクタを検出する）
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ギャラドス" },
+      moveName: "ウェザーボール",
+      conditions: { weather: "Sun" },
+    });
+
+    expect(result.moveType).toBe("Fire");
+    expect(result.isStab).toBe(true);
+    expect(result.typeMultiplier).toBe(0.5);
+  });
+});
