@@ -142,17 +142,22 @@ describe("マスターデータの不変条件", () => {
   });
 
   describe("learnsets が未整備のベースフォーム", () => {
-    it("learnsets にキーが無いベースフォームは既知の 2 体に限定される", () => {
+    it("learnsets にキーが無いベースフォームは既知の 4 体に限定される", () => {
       const learnsetKeys = new Set(Object.keys(championsLearnsets));
       const missingLearnsetBaseIds = championsPokemon
         .filter((p) => p.baseSpecies === null && !learnsetKeys.has(p.id))
         .map((p) => p.id)
         .sort();
 
-      // ゴリランダー・セグレイブはポケチャン版の習得技データが未公表のため、
-      // learnset キーを意図的に持たない。追補完了後はこのテストを削除せず、
+      // ゴリランダー・セグレイブ・ボーマンダ・グソクムシャはポケチャン版の習得技データが
+      // 未公表のため、learnset キーを意図的に持たない。追補完了後はこのテストを削除せず、
       // 期待値を空配列（toEqual([])）に反転して「全ベースフォームが learnset を持つ」恒久不変条件として残す。
-      expect(missingLearnsetBaseIds).toEqual(["baxcalibur", "rillaboom"]);
+      expect(missingLearnsetBaseIds).toEqual([
+        "baxcalibur",
+        "golisopod",
+        "rillaboom",
+        "salamence",
+      ]);
     });
   });
 });
