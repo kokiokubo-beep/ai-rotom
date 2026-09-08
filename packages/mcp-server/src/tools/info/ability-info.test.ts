@@ -54,6 +54,24 @@ describe("get_ability_info logic", () => {
     });
   });
 
+  describe("ききかいひ", () => {
+    it("日本語名から英語名に解決でき、desc が返る", () => {
+      const englishName = abilityNameResolver.toEnglish("ききかいひ");
+      expect(englishName).toBe("Emergency Exit");
+
+      const entry = abilitiesById.get(toDataId(englishName!));
+      expect(entry).toBeDefined();
+      expect(entry!.desc.length).toBeGreaterThan(0);
+    });
+
+    it("英語名から特性データが取得でき、desc が返る", () => {
+      const entry = abilitiesById.get(toDataId("Emergency Exit"));
+      expect(entry).toBeDefined();
+      expect(entry!.name).toBe("Emergency Exit");
+      expect(entry!.desc.length).toBeGreaterThan(0);
+    });
+  });
+
   describe("存在しない特性", () => {
     it("toEnglish で存在しない日本語名は undefined を返す", () => {
       const result = abilityNameResolver.toEnglish("ない特性");
