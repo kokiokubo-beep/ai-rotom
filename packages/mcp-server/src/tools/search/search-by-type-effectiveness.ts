@@ -122,7 +122,7 @@ function calcDefensiveMultiplier(
  * 指定ポケモンが、指定タイプの攻撃技を learnsets 内に持つかを判定する。
  * Status 技は除外する。
  */
-function hasAttackingMoveOfType(
+export function hasAttackingMoveOfType(
   pokemonId: string,
   attackTypeEn: string,
 ): boolean {
