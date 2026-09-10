@@ -57,4 +57,55 @@ describe("get_learnset logic", () => {
       expect(moveIds).toBeUndefined();
     });
   });
+
+  describe("追加した learnset 26 キー", () => {
+    // 件数が多いため table-driven に統一する。件数固定はマージ漏れ・二重マージの検知が目的。
+    it.each([
+      { id: "arboliva", count: 44 },
+      { id: "baxcalibur", count: 51 },
+      { id: "cinderace", count: 64 },
+      { id: "farfetchd", count: 50 },
+      { id: "gogoat", count: 54 },
+      { id: "golisopod", count: 67 },
+      { id: "grapploct", count: 49 },
+      { id: "indeedee", count: 46 },
+      { id: "indeedeef", count: 45 },
+      { id: "inteleon", count: 62 },
+      { id: "mabosstiff", count: 44 },
+      { id: "mrmime", count: 77 },
+      { id: "pawmot", count: 64 },
+      { id: "perrserker", count: 74 },
+      { id: "persian", count: 66 },
+      { id: "persianalola", count: 73 },
+      { id: "pincurchin", count: 48 },
+      { id: "rillaboom", count: 67 },
+      { id: "salamence", count: 62 },
+      { id: "sirfetchd", count: 48 },
+      { id: "squawkabilly", count: 43 },
+      { id: "swalot", count: 62 },
+      { id: "thievul", count: 51 },
+      { id: "toxtricity", count: 68 },
+      { id: "toxtricitylowkey", count: 68 },
+      { id: "wigglytuff", count: 98 },
+    ])("$id の learnset が $count 件になる", ({ id, count }) => {
+      expect(championsLearnsets[id]).toBeDefined();
+      expect(championsLearnsets[id].length).toBe(count);
+    });
+
+    it.each([
+      { pokemonJa: "エースバーン", moveJa: "かえんボール" },
+      { pokemonJa: "ゴリランダー", moveJa: "ドラムアタック" },
+      { pokemonJa: "パーモット", moveJa: "さいきのいのり" },
+      { pokemonJa: "インテレオン", moveJa: "ねらいうち" },
+      { pokemonJa: "ストリンダー(ロー)", moveJa: "オーバードライブ" },
+    ])("$pokemonJa は専用技「$moveJa」を覚える", ({ pokemonJa, moveJa }) => {
+      const pokemonEn = pokemonNameResolver.toEnglish(pokemonJa);
+      const moveEn = moveNameResolver.toEnglish(moveJa);
+      expect(pokemonEn).toBeDefined();
+      expect(moveEn).toBeDefined();
+
+      const learnset = championsLearnsets[toDataId(pokemonEn!)];
+      expect(learnset).toContain(toDataId(moveEn!));
+    });
+  });
 });

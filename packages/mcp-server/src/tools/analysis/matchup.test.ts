@@ -139,6 +139,22 @@ describe("analyze_matchup logic", () => {
       expect(pikachuIds.size).toBeGreaterThan(0);
       expect(pikachuIds.has("thunderbolt")).toBe(true);
     });
+
+    it("エースバーンが覚えない技（トリプルアクセル）はダメ計結果から除外される", () => {
+      // トリプルアクセルは計算エンジンの技 DB にはあるがエースバーンは覚えない。
+      const attacks = damageCalculator.calculateAllMoves({
+        attacker: { name: "エースバーン" },
+        defender: { name: "カビゴン" },
+      });
+
+      const learnsetIds = getLearnsetMoveIdSet(toDataId("Cinderace"));
+      const filtered = filterResultsByLearnset(attacks, learnsetIds, toDataId);
+
+      const filteredMoveIds = new Set(filtered.map((r) => toDataId(r.move)));
+      expect(filteredMoveIds.has("tripleaxel")).toBe(false);
+      expect(filteredMoveIds.has("pyroball")).toBe(true);
+      expect(filtered.length).toBeLessThan(attacks.length);
+    });
   });
 
   describe("先制技抽出", () => {
