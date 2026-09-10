@@ -427,11 +427,25 @@
     "shortDesc": "Pokemon making contact with this Pokemon have their Speed lowered by 1 stage."
   },
   {
+    "id": "grasspelt",
+    "name": "Grass Pelt",
+    "nameJa": "くさのけがわ",
+    "desc": "If Grassy Terrain is active, this Pokemon's Defense is multiplied by 1.5.",
+    "shortDesc": "If Grassy Terrain is active, this Pokemon's Defense is 1.5x."
+  },
+  {
     "id": "grassysurge",
     "name": "Grassy Surge",
     "nameJa": "グラスメイカー",
     "desc": "On switch-in, this Pokemon summons Grassy Terrain.",
     "shortDesc": "On switch-in, starts Grassy Terrain."
+  },
+  {
+    "id": "guarddog",
+    "name": "Guard Dog",
+    "nameJa": "ばんけん",
+    "desc": "This Pokemon's Attack is raised 1 stage instead of lowered by Intimidate. It cannot be forced to switch out by an attacking move or item.",
+    "shortDesc": "Immune to Intimidate (Attack is raised instead) and cannot be forced out."
   },
   {
     "id": "guts",
@@ -621,6 +635,13 @@
     "nameJa": "ふゆう",
     "desc": "This Pokemon is immune to Ground-type attacks and the effects of Spikes, Toxic Spikes, Sticky Web, and the Arena Trap Ability. The effects of Gravity, Ingrain, Smack Down, Thousand Arrows, and Iron Ball nullify the immunity. Thousand Arrows can hit this Pokemon as if it did not have this Ability.",
     "shortDesc": "This Pokemon is immune to Ground; Gravity/Ingrain/Smack Down/Iron Ball nullify it."
+  },
+  {
+    "id": "libero",
+    "name": "Libero",
+    "nameJa": "リベロ",
+    "desc": "This Pokemon's type changes to match the type of the move it is about to use. This effect comes after all effects that change a move's type. This effect can only happen once per switch-in, and only if this Pokemon is not Terastallized.",
+    "shortDesc": "This Pokemon's type changes to the type of the move it is using. Once per switch-in."
   },
   {
     "id": "lightmetal",
@@ -952,6 +973,20 @@
     "shortDesc": "This Pokemon's type changes to the type of the move it is using. Once per switch-in."
   },
   {
+    "id": "psychicsurge",
+    "name": "Psychic Surge",
+    "nameJa": "サイコメイカー",
+    "desc": "On switch-in, this Pokemon summons Psychic Terrain.",
+    "shortDesc": "On switch-in, starts Psychic Terrain."
+  },
+  {
+    "id": "punkrock",
+    "name": "Punk Rock",
+    "nameJa": "パンクロック",
+    "desc": "This Pokemon's sound-based moves have their power multiplied by 1.3. This Pokemon takes halved damage from sound-based moves.",
+    "shortDesc": "This Pokemon receives 1/2 damage from sound moves. Its own have 1.3x power."
+  },
+  {
     "id": "purepower",
     "name": "Pure Power",
     "nameJa": "ヨガパワー",
@@ -1064,6 +1099,13 @@
     "shortDesc": "Pokemon making contact with this Pokemon lose 1/8 of their max HP."
   },
   {
+    "id": "runaway",
+    "name": "Run Away",
+    "nameJa": "にげあし",
+    "desc": "No competitive use.",
+    "shortDesc": "No competitive use."
+  },
+  {
     "id": "sandforce",
     "name": "Sand Force",
     "nameJa": "すなのちから",
@@ -1118,6 +1160,13 @@
     "nameJa": "バリアフリー",
     "desc": "On switch-in, the effects of Aurora Veil, Light Screen, and Reflect end for both sides.",
     "shortDesc": "On switch-in, the effects of Aurora Veil, Light Screen, and Reflect end for both sides."
+  },
+  {
+    "id": "seedsower",
+    "name": "Seed Sower",
+    "nameJa": "こぼれダネ",
+    "desc": "When this Pokemon is hit by an attack, the effect of Grassy Terrain begins.",
+    "shortDesc": "When this Pokemon is hit, Grassy Terrain begins."
   },
   {
     "id": "serenegrace",
@@ -1253,6 +1302,13 @@
     "shortDesc": "If this Pokemon is hit by an attack, the attacker becomes burned."
   },
   {
+    "id": "stakeout",
+    "name": "Stakeout",
+    "nameJa": "はりこみ",
+    "desc": "This Pokemon's attacking stat is doubled against a target that switched in this turn.",
+    "shortDesc": "This Pokemon's attacking stat is doubled against a target that switched in."
+  },
+  {
     "id": "stall",
     "name": "Stall",
     "nameJa": "あとだし",
@@ -1293,6 +1349,13 @@
     "nameJa": "ふくつのこころ",
     "desc": "If this Pokemon flinches, its Speed is raised by 1 stage.",
     "shortDesc": "If this Pokemon flinches, its Speed is raised by 1 stage."
+  },
+  {
+    "id": "steelyspirit",
+    "name": "Steely Spirit",
+    "nameJa": "はがねのせいしん",
+    "desc": "This Pokemon and its allies' Steel-type moves have their power multiplied by 1.5.",
+    "shortDesc": "This Pokemon and its allies' Steel-type moves have 1.5x power."
   },
   {
     "id": "stench",
