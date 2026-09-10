@@ -37,6 +37,7 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
 
 - **id 命名規則**: `toID` 相当（小文字英数字のみ、記号・空白除去）
   例: `"Charizard-Mega-X"` → `"charizardmegax"`、`"Acid Spray"` → `"acidspray"`
+- **アポストロフィ**: 半角 `'` を使う（例: `Farfetch'd` / `King's Rock`）。calc 側が U+2019 を使う名前でも半角に正規化する（`toID` が記号を落とすため計算への影響は無い）
 - **日本語名の表記**: 全角英数字（例: `ＤＤラリアット`、`１０まんボルト`）と
   漢字 + 全角中点（例: `ひけん・ちえなみ`）を採用。ただしフォルム接尾辞は例外で、
   pokemon.json は半角（メガリザードンX / メガルカリオZ）、items.json のメガストーン名は
