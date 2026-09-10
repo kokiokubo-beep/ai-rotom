@@ -167,6 +167,67 @@ describe("get_pokemon_info", () => {
     });
   });
 
+  describe("ボーマンダ・メガボーマンダ・グソクムシャ", () => {
+    it("ボーマンダ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Salamence"))!;
+      expect(entry.types).toEqual(["Dragon", "Flying"]);
+      expect(entry.baseStats.hp).toBe(95);
+      expect(entry.baseStats.atk).toBe(135);
+      expect(entry.baseStats.def).toBe(80);
+      expect(entry.baseStats.spa).toBe(110);
+      expect(entry.baseStats.spd).toBe(80);
+      expect(entry.baseStats.spe).toBe(100);
+      expect(entry.abilities).toEqual(["Intimidate", "Moxie"]);
+      expect(entry.weightkg).toBe(102.6);
+    });
+
+    it("メガボーマンダ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Salamence-Mega"))!;
+      expect(entry.types).toEqual(["Dragon", "Flying"]);
+      expect(entry.baseStats.hp).toBe(95);
+      expect(entry.baseStats.atk).toBe(145);
+      expect(entry.baseStats.def).toBe(130);
+      expect(entry.baseStats.spa).toBe(120);
+      expect(entry.baseStats.spd).toBe(90);
+      expect(entry.baseStats.spe).toBe(120);
+      expect(entry.abilities).toEqual(["Aerilate"]);
+      expect(entry.weightkg).toBe(112.6);
+    });
+
+    it("グソクムシャ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Golisopod"))!;
+      expect(entry.types).toEqual(["Bug", "Water"]);
+      expect(entry.baseStats.hp).toBe(75);
+      expect(entry.baseStats.atk).toBe(125);
+      expect(entry.baseStats.def).toBe(140);
+      expect(entry.baseStats.spa).toBe(60);
+      expect(entry.baseStats.spd).toBe(90);
+      expect(entry.baseStats.spe).toBe(40);
+      expect(entry.abilities).toEqual(["Emergency Exit"]);
+      expect(entry.weightkg).toBe(108);
+    });
+
+    it("ボーマンダの otherFormes が [Salamence-Mega] になる", () => {
+      const entry = pokemonById.get(toDataId("Salamence"))!;
+      expect(entry.otherFormes).toEqual(["Salamence-Mega"]);
+    });
+
+    it("ボーマンダ が日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("ボーマンダ");
+      expect(englishName).toBe("Salamence");
+    });
+
+    it("メガボーマンダ が日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("メガボーマンダ");
+      expect(englishName).toBe("Salamence-Mega");
+    });
+
+    it("グソクムシャ が日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("グソクムシャ");
+      expect(englishName).toBe("Golisopod");
+    });
+  });
+
   describe("英語名での情報取得", () => {
     it("英語名からポケモン情報が取得できる", () => {
       const inputName = "Garchomp";

@@ -12,9 +12,9 @@
 
 | ファイル | 役割 | 件数目安 |
 |---|---|---|
-| `pokemon.json` | ポケモン (種族値・タイプ・特性・重さ) | 328 |
-| `abilities.json` | 特性 (英日名 + 効果説明) | 223 |
-| `items.json` | 持ち物 (メガストーン情報含む) | 151 |
+| `pokemon.json` | ポケモン (種族値・タイプ・特性・重さ) | 331 |
+| `abilities.json` | 特性 (英日名 + 効果説明) | 224 |
+| `items.json` | 持ち物 (メガストーン情報含む) | 152 |
 | `moves.json` | 技 (威力・命中・PP・タイプ・フラグ等) | 527 |
 | `learnsets.json` | ポケモン ID → 技 ID 配列 | 233 species |
 | `natures.json` | 性格 (plus / minus) | 25 |

@@ -71,6 +71,20 @@ describe("get_item_info logic", () => {
     });
   });
 
+  describe("ボーマンダナイト", () => {
+    it("megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Salamencite"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Salamence-Mega");
+      expect(entry!.megaEvolves).toBe("Salamence");
+    });
+
+    it("日本語名で解決できる", () => {
+      const englishName = itemNameResolver.toEnglish("ボーマンダナイト");
+      expect(englishName).toBe("Salamencite");
+    });
+  });
+
   describe("存在しない持ち物", () => {
     it("toEnglish で存在しない日本語名は undefined を返す", () => {
       const result = itemNameResolver.toEnglish("ないアイテム");

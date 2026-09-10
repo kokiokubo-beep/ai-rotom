@@ -1033,6 +1033,15 @@
     "megaEvolves": "Sableye"
   },
   {
+    "id": "salamencite",
+    "name": "Salamencite",
+    "nameJa": "ボーマンダナイト",
+    "desc": "If held by a Salamence, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by a Salamence, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Salamence-Mega",
+    "megaEvolves": "Salamence"
+  },
+  {
     "id": "sceptilite",
     "name": "Sceptilite",
     "nameJa": "ジュカインナイト",

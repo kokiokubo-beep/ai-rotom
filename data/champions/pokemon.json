@@ -7987,5 +7987,77 @@
     "weightkg": 90,
     "baseSpecies": null,
     "otherFormes": null
+  },
+  {
+    "id": "salamence",
+    "name": "Salamence",
+    "nameJa": "ボーマンダ",
+    "types": [
+      "Dragon",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 95,
+      "atk": 135,
+      "def": 80,
+      "spa": 110,
+      "spd": 80,
+      "spe": 100
+    },
+    "abilities": [
+      "Intimidate",
+      "Moxie"
+    ],
+    "weightkg": 102.6,
+    "baseSpecies": null,
+    "otherFormes": [
+      "Salamence-Mega"
+    ]
+  },
+  {
+    "id": "salamencemega",
+    "name": "Salamence-Mega",
+    "nameJa": "メガボーマンダ",
+    "types": [
+      "Dragon",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 95,
+      "atk": 145,
+      "def": 130,
+      "spa": 120,
+      "spd": 90,
+      "spe": 120
+    },
+    "abilities": [
+      "Aerilate"
+    ],
+    "weightkg": 112.6,
+    "baseSpecies": "Salamence",
+    "otherFormes": null
+  },
+  {
+    "id": "golisopod",
+    "name": "Golisopod",
+    "nameJa": "グソクムシャ",
+    "types": [
+      "Bug",
+      "Water"
+    ],
+    "baseStats": {
+      "hp": 75,
+      "atk": 125,
+      "def": 140,
+      "spa": 60,
+      "spd": 90,
+      "spe": 40
+    },
+    "abilities": [
+      "Emergency Exit"
+    ],
+    "weightkg": 108,
+    "baseSpecies": null,
+    "otherFormes": null
   }
 ]

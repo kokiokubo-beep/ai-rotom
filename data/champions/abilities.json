@@ -301,6 +301,13 @@
     "shortDesc": "This Pokemon gains the Charge effect when it takes a hit from an attack."
   },
   {
+    "id": "emergencyexit",
+    "name": "Emergency Exit",
+    "nameJa": "ききかいひ",
+    "desc": "When this Pokemon has more than 1/2 its maximum HP and takes damage from an attack bringing it to 1/2 or less of its maximum HP, it immediately switches out. This effect applies after all hits from a multi-hit move. This effect is prevented if the move had a secondary effect removed by the Sheer Force Ability.",
+    "shortDesc": "This Pokemon switches out when it reaches 1/2 or less of its maximum HP."
+  },
+  {
     "id": "fairyaura",
     "name": "Fairy Aura",
     "nameJa": "フェアリーオーラ",

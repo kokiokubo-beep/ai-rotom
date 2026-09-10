@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { calculate, Generations, Pokemon, Move, Field, toID } from "@smogon/calc";
-import { DamageCalculatorAdapter } from "@ai-rotom/shared";
+import { DamageCalculatorAdapter, STAB_MULTIPLIER } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
 import { pokemonEntryProvider } from "../data-store";
 import {
@@ -96,14 +96,23 @@ describe("@smogon/calc Champions integration", () => {
   });
 });
 
+const SPECIES_ABSENT_FROM_GEN0 = [
+  "Rillaboom",
+  "Baxcalibur",
+  "Salamence",
+  "Salamence-Mega",
+  "Golisopod",
+] as const;
+
 describe("@smogon/calc gen0 に収録されていない新規種族", () => {
   const gen = Generations.get(CHAMPIONS_GEN_NUM);
 
-  it("Rillaboom は gen0 の内蔵種族データに存在しない", () => {
-    // 落ちたら vendored calc が両種を収録した合図。
+  it("ポケチャン追加種は gen0 の内蔵種族データに存在しない", () => {
+    // 落ちたら vendored calc が該当種を収録した合図。
     // その時は overrides の意味が変わるので関連テストを見直す。
-    expect(gen.species.get(toID("Rillaboom"))).toBeUndefined();
-    expect(gen.species.get(toID("Baxcalibur"))).toBeUndefined();
+    for (const name of SPECIES_ABSENT_FROM_GEN0) {
+      expect(gen.species.get(toID(name))).toBeUndefined();
+    }
   });
 });
 
@@ -378,6 +387,16 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
 
     expect(result.description).toContain("(120 BP");
   });
+
+  it("グソクムシャ (108kg) へのくさむすびは 100 BP で計算される", () => {
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "グソクムシャ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(100 BP");
+  });
 });
 
 describe("DamageCalculatorAdapter.calculateAllMoves", () => {
@@ -566,5 +585,134 @@ describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
     expect(withAuraGuard.min).toBeGreaterThan(0);
     expect(withAuraGuard.min).toBe(withUnrelatedAbility.min);
     expect(withAuraGuard.max).toBe(withUnrelatedAbility.max);
+  });
+});
+
+describe("DamageCalculatorAdapter 計算後の技タイプからメトリクスを算出", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  it("calculate で Aerilate によるタイプ変換が moveType に反映される", () => {
+    const result = adapter.calculate({
+      attacker: { name: "メガカイロス" },
+      defender: { name: "ゲンガー" },
+      moveName: "すてみタックル",
+    });
+
+    expect(result.moveType).toBe("Flying");
+    expect(result.isStab).toBe(true);
+    expect(result.typeMultiplier).toBe(1);
+    expect(result.min).toBeGreaterThan(0);
+  });
+
+  it("calculateAllMoves でも Aerilate のタイプ変換が結果に反映される", () => {
+    const results = adapter.calculateAllMoves({
+      attacker: { name: "メガカイロス" },
+      defender: { name: "ゲンガー" },
+    });
+
+    const doubleEdge = results.find((r) => r.move === "Double-Edge");
+
+    expect(doubleEdge).toBeDefined();
+    expect(doubleEdge!.moveType).toBe("Flying");
+  });
+
+  it("field 起因の技タイプ変換（ウェザーボール）も moveType に反映される", () => {
+    // -ate 系とは独立した field 起因の変換経路を押さえる（静的マップ applyOffensiveTypeOverride への差し戻しリファクタを検出する）
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ギャラドス" },
+      moveName: "ウェザーボール",
+      conditions: { weather: "Sun" },
+    });
+
+    expect(result.moveType).toBe("Fire");
+    expect(result.isStab).toBe(true);
+    expect(result.typeMultiplier).toBe(0.5);
+  });
+});
+
+describe("DamageCalculatorAdapter メガボーマンダのスカイスキン (Aerilate)", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  it("すてみタックルはスカイスキンで Flying 化し、ゴーストのゲンガーにも通る", () => {
+    // ノーマル技はゴーストに無効なので、ダメージが出ること自体がスカイスキンによる Flying 化の証明になる。
+    const result = adapter.calculate({
+      attacker: { name: "メガボーマンダ" },
+      defender: { name: "ゲンガー" },
+      moveName: "すてみタックル",
+    });
+
+    expect(result.moveType).toBe("Flying");
+    expect(result.isStab).toBe(true);
+    expect(result.typeMultiplier).toBe(1);
+    expect(result.min).toBeGreaterThan(0);
+  });
+
+  it("すてみタックルの威力補正は STAB 単体の倍率を超える", () => {
+    const withAerilate = adapter.calculate({
+      attacker: { name: "メガボーマンダ" },
+      defender: { name: "ギャラドス" },
+      moveName: "すてみタックル",
+    });
+
+    const withoutAerilate = adapter.calculate({
+      attacker: { name: "メガボーマンダ", ability: "ものひろい" },
+      defender: { name: "ギャラドス" },
+      moveName: "すてみタックル",
+    });
+
+    // 理論値は STAB (1.5) × スカイスキンの威力補正 (1.2) = 1.8 だが、実測比は 1.7778 で
+    // 端数丸めにより下振れする。絶対値固定ではなく下限チェックで威力補正の有無を弁別する。
+    expect(withAerilate.max / withoutAerilate.max).toBeGreaterThan(STAB_MULTIPLIER);
+  });
+});
+
+describe("DamageCalculatorAdapter いかく (Intimidate) の未反映を固定", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  it("ボーマンダの第一特性いかくは相手の攻撃力を下げない", () => {
+    // calc は Intimidate を実装しているが発動フラグ（abilityOn）依存で、本アダプタはフラグを渡していないため未反映。反映されるようになったらこのテストが落ちる。
+    const withIntimidate = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ボーマンダ" },
+      moveName: "フレアドライブ",
+    });
+
+    const withUnrelatedAbility = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ボーマンダ", ability: "ものひろい" },
+      moveName: "フレアドライブ",
+    });
+
+    expect(withIntimidate.min).toBeGreaterThan(0);
+    expect(withIntimidate.min).toBe(withUnrelatedAbility.min);
+    expect(withIntimidate.max).toBe(withUnrelatedAbility.max);
   });
 });
