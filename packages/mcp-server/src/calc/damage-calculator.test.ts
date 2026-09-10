@@ -1,15 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { calculate, Generations, Pokemon, Move, Field, toID } from "@smogon/calc";
-import { DamageCalculatorAdapter, STAB_MULTIPLIER } from "@ai-rotom/shared";
+import { STAB_MULTIPLIER } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
-import { pokemonEntryProvider } from "../data-store";
-import {
-  pokemonNameResolver,
-  moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
-} from "../name-resolvers";
+import { damageCalculator } from "./damage-calculator.js";
 
 const CHAMPIONS_GEN_NUM = 0;
 
@@ -117,19 +110,8 @@ describe("@smogon/calc gen0 に収録されていない新規種族", () => {
 });
 
 describe("DamageCalculatorAdapter", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("should calculate damage with Japanese names", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -148,7 +130,7 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should calculate damage with English names", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "Charizard" },
       defender: { name: "Gyarados" },
       moveName: "Flamethrower",
@@ -162,7 +144,7 @@ describe("DamageCalculatorAdapter", () => {
 
   it("should throw error for non-existent Pokemon name", () => {
     expect(() =>
-      adapter.calculate({
+      damageCalculator.calculate({
         attacker: { name: "ソニック" },
         defender: { name: "ギャラドス" },
         moveName: "かえんほうしゃ",
@@ -172,7 +154,7 @@ describe("DamageCalculatorAdapter", () => {
 
   it("should throw error for non-existent move name", () => {
     expect(() =>
-      adapter.calculate({
+      damageCalculator.calculate({
         attacker: { name: "リザードン" },
         defender: { name: "ギャラドス" },
         moveName: "ファイナルフラッシュ",
@@ -181,13 +163,13 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should apply default nature (Serious) when not specified", () => {
-    const resultDefault = adapter.calculate({
+    const resultDefault = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
     });
 
-    const resultSerious = adapter.calculate({
+    const resultSerious = damageCalculator.calculate({
       attacker: { name: "リザードン", nature: "まじめ" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -198,13 +180,13 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should apply EVs correctly", () => {
-    const resultNoEvs = adapter.calculate({
+    const resultNoEvs = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
     });
 
-    const resultWithEvs = adapter.calculate({
+    const resultWithEvs = damageCalculator.calculate({
       attacker: { name: "リザードン", evs: { spa: 32 } },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -214,13 +196,13 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should apply weather conditions", () => {
-    const resultNoWeather = adapter.calculate({
+    const resultNoWeather = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
     });
 
-    const resultSun = adapter.calculate({
+    const resultSun = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -231,13 +213,13 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should apply nature modifier with Japanese name", () => {
-    const resultModest = adapter.calculate({
+    const resultModest = damageCalculator.calculate({
       attacker: { name: "リザードン", nature: "ひかえめ" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
     });
 
-    const resultDefault = adapter.calculate({
+    const resultDefault = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -247,7 +229,7 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should return koChance text", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -257,7 +239,7 @@ describe("DamageCalculatorAdapter", () => {
   });
 
   it("should return 16 damage rolls", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -271,7 +253,7 @@ describe("DamageCalculatorAdapter", () => {
     // Charizard (Fire/Flying) かえんほうしゃ vs Gyarados (Water/Flying)
     // Fire is STAB (Charizard's type), Fire vs Water=0.5, Fire vs Flying=1 → 0.5
     // effectivePowerMultiplier = 1.5 * 0.5 = 0.75
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "かえんほうしゃ",
@@ -287,21 +269,10 @@ describe("DamageCalculatorAdapter", () => {
 });
 
 describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("メガスターミーの物理技が Huge Power で計算される", () => {
     // pokemon.json: Starmie-Mega atk=100, ability[0]=Huge Power
     // Huge Power 特性は攻撃力を 2 倍する
-    const withHugePower = adapter.calculate({
+    const withHugePower = damageCalculator.calculate({
       attacker: { name: "メガスターミー" },
       defender: { name: "ギャラドス" },
       moveName: "たきのぼり",
@@ -317,7 +288,7 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
     // @smogon/calc Gen 0 に Rillaboom species は存在しないため、defender.types は
     // pokemon.json の overrides（Grass 単タイプ）のみから決まる。
     // つららおとし (Ice) × Grass 単タイプ = 2 倍であることが types 注入の証明になる。
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "セグレイブ" },
       defender: { name: "ゴリランダー" },
       moveName: "つららおとし",
@@ -328,22 +299,11 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
 });
 
 describe("DamageCalculatorAdapter weight-dependent moves", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   // @smogon/calc は重さ依存技の威力を description に "(<BP> BP) " 形式で出す (desc.ts)。
   // 威力区分: 200kg以上=120 / 100kg以上=100 / 50kg以上=80 / 25kg以上=60 / 10kg以上=40 / 未満=20
 
   it("ガブリアス (95kg) へのくさむすびは 80 BP で計算される", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ガブリアス" },
       moveName: "くさむすび",
@@ -355,7 +315,7 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
   it("メガルカリオZ (49.4kg) へのくさむすびは 60 BP で計算される", () => {
     // weightkg が 0 のままだと重さ区分の最低威力 (20 BP) で計算されてしまう。
     // pokemon.json の weightkg (49.4) が overrides で正しく注入されていることの確認。
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "メガルカリオZ" },
       moveName: "くさむすび",
@@ -366,7 +326,7 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
 
   it("ギルガルド(ブレードフォルム) (53kg) へのくさむすびは 80 BP で計算される", () => {
     // weightkg=0 から実値へ修正した既存 5 件のうちの回帰確認。
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギルガルド(ブレードフォルム)" },
       moveName: "くさむすび",
@@ -379,7 +339,7 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
     // @smogon/calc Gen 0 に Baxcalibur species は存在しないため、weightkg は
     // pokemon.json の overrides 以外に注入元が無い。この計算が成立すること自体が
     // overrides 経由のデータ供給が唯一のデータ源であることの証明になる。
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "セグレイブ" },
       moveName: "くさむすび",
@@ -389,7 +349,7 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
   });
 
   it("グソクムシャ (108kg) へのくさむすびは 100 BP で計算される", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "グソクムシャ" },
       moveName: "くさむすび",
@@ -400,19 +360,8 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
 });
 
 describe("DamageCalculatorAdapter.calculateAllMoves", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("should return multiple damage results for Japanese names", () => {
-    const results = adapter.calculateAllMoves({
+    const results = damageCalculator.calculateAllMoves({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
     });
@@ -423,7 +372,7 @@ describe("DamageCalculatorAdapter.calculateAllMoves", () => {
   });
 
   it("should sort results by max damage descending", () => {
-    const results = adapter.calculateAllMoves({
+    const results = damageCalculator.calculateAllMoves({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
     });
@@ -434,7 +383,7 @@ describe("DamageCalculatorAdapter.calculateAllMoves", () => {
   });
 
   it("should only include moves that deal damage", () => {
-    const results = adapter.calculateAllMoves({
+    const results = damageCalculator.calculateAllMoves({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
     });
@@ -446,7 +395,7 @@ describe("DamageCalculatorAdapter.calculateAllMoves", () => {
 
   it("should throw error for non-existent Pokemon name", () => {
     expect(() =>
-      adapter.calculateAllMoves({
+      damageCalculator.calculateAllMoves({
         attacker: { name: "ソニック" },
         defender: { name: "ギャラドス" },
       }),
@@ -454,12 +403,12 @@ describe("DamageCalculatorAdapter.calculateAllMoves", () => {
   });
 
   it("should apply nature and EVs to calculation", () => {
-    const resultsDefault = adapter.calculateAllMoves({
+    const resultsDefault = damageCalculator.calculateAllMoves({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
     });
 
-    const resultsModest = adapter.calculateAllMoves({
+    const resultsModest = damageCalculator.calculateAllMoves({
       attacker: { name: "リザードン", nature: "ひかえめ", evs: { spa: 32 } },
       defender: { name: "ギャラドス" },
     });
@@ -480,19 +429,8 @@ describe("DamageCalculatorAdapter.calculateAllMoves", () => {
 });
 
 describe("DamageCalculatorAdapter.createPokemonObject", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("should create Pokemon object with Japanese name", () => {
-    const { pokemon, resolvedName } = adapter.createPokemonObject({
+    const { pokemon, resolvedName } = damageCalculator.createPokemonObject({
       name: "リザードン",
     });
 
@@ -502,11 +440,11 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
   });
 
   it("should create Pokemon object with nature and EVs", () => {
-    const { pokemon: pDefault } = adapter.createPokemonObject({
+    const { pokemon: pDefault } = damageCalculator.createPokemonObject({
       name: "リザードン",
     });
 
-    const { pokemon: pModest } = adapter.createPokemonObject({
+    const { pokemon: pModest } = damageCalculator.createPokemonObject({
       name: "リザードン",
       nature: "ひかえめ",
       evs: { spe: 32 },
@@ -517,14 +455,14 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
 
   it("should throw error for non-existent Pokemon name", () => {
     expect(() =>
-      adapter.createPokemonObject({ name: "ソニック" }),
+      damageCalculator.createPokemonObject({ name: "ソニック" }),
     ).toThrow("ポケモン「ソニック」が見つかりません。");
   });
 
   it("should apply pokemon.json overrides (Starmie-Mega atk = 100)", () => {
     // pokemon.json で Starmie-Mega の atk は 140 → 100 に修正済み
     // デフォルト特性は Huge Power
-    const { pokemon } = adapter.createPokemonObject({
+    const { pokemon } = damageCalculator.createPokemonObject({
       name: "メガスターミー",
     });
 
@@ -535,10 +473,10 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
   it("should use explicit ability when specified", () => {
     // Charizard は pokemon.json で [Blaze, Solar Power]
     // ユーザー指定の場合は優先される
-    const { pokemon: pDefault } = adapter.createPokemonObject({
+    const { pokemon: pDefault } = damageCalculator.createPokemonObject({
       name: "リザードン",
     });
-    const { pokemon: pSolarPower } = adapter.createPokemonObject({
+    const { pokemon: pSolarPower } = damageCalculator.createPokemonObject({
       name: "リザードン",
       ability: "Solar Power",
     });
@@ -549,17 +487,6 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
 });
 
 describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   // このテストが落ちたら calc が Aura Guard を実装した合図。
   // README と instructions.ts の注記を見直してからテストを更新する。
   it("メガルカリオZ の Aura Guard は接触物理技のダメージを軽減しない", () => {
@@ -570,13 +497,13 @@ describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
     // フレアドライブ (接触・Fire) を選んだのは Fighting/Steel 複合の
     // メガルカリオZ に等倍以上が確実に入り、ダメージ 0 ロールによる
     // kochance() の内部エラーを避けるため。
-    const withAuraGuard = adapter.calculate({
+    const withAuraGuard = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "メガルカリオZ" },
       moveName: "フレアドライブ",
     });
 
-    const withUnrelatedAbility = adapter.calculate({
+    const withUnrelatedAbility = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "メガルカリオZ", ability: "ものひろい" },
       moveName: "フレアドライブ",
@@ -589,19 +516,8 @@ describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
 });
 
 describe("DamageCalculatorAdapter 計算後の技タイプからメトリクスを算出", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("calculate で Aerilate によるタイプ変換が moveType に反映される", () => {
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "メガカイロス" },
       defender: { name: "ゲンガー" },
       moveName: "すてみタックル",
@@ -614,7 +530,7 @@ describe("DamageCalculatorAdapter 計算後の技タイプからメトリクス�
   });
 
   it("calculateAllMoves でも Aerilate のタイプ変換が結果に反映される", () => {
-    const results = adapter.calculateAllMoves({
+    const results = damageCalculator.calculateAllMoves({
       attacker: { name: "メガカイロス" },
       defender: { name: "ゲンガー" },
     });
@@ -627,7 +543,7 @@ describe("DamageCalculatorAdapter 計算後の技タイプからメトリクス�
 
   it("field 起因の技タイプ変換（ウェザーボール）も moveType に反映される", () => {
     // -ate 系とは独立した field 起因の変換経路を押さえる（静的マップ applyOffensiveTypeOverride への差し戻しリファクタを検出する）
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギャラドス" },
       moveName: "ウェザーボール",
@@ -641,20 +557,9 @@ describe("DamageCalculatorAdapter 計算後の技タイプからメトリクス�
 });
 
 describe("DamageCalculatorAdapter メガボーマンダのスカイスキン (Aerilate)", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("すてみタックルはスカイスキンで Flying 化し、ゴーストのゲンガーにも通る", () => {
     // ノーマル技はゴーストに無効なので、ダメージが出ること自体がスカイスキンによる Flying 化の証明になる。
-    const result = adapter.calculate({
+    const result = damageCalculator.calculate({
       attacker: { name: "メガボーマンダ" },
       defender: { name: "ゲンガー" },
       moveName: "すてみタックル",
@@ -667,13 +572,13 @@ describe("DamageCalculatorAdapter メガボーマンダのスカイスキン (Ae
   });
 
   it("すてみタックルの威力補正は STAB 単体の倍率を超える", () => {
-    const withAerilate = adapter.calculate({
+    const withAerilate = damageCalculator.calculate({
       attacker: { name: "メガボーマンダ" },
       defender: { name: "ギャラドス" },
       moveName: "すてみタックル",
     });
 
-    const withoutAerilate = adapter.calculate({
+    const withoutAerilate = damageCalculator.calculate({
       attacker: { name: "メガボーマンダ", ability: "ものひろい" },
       defender: { name: "ギャラドス" },
       moveName: "すてみタックル",
@@ -686,26 +591,15 @@ describe("DamageCalculatorAdapter メガボーマンダのスカイスキン (Ae
 });
 
 describe("DamageCalculatorAdapter いかく (Intimidate) の未反映を固定", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   it("ボーマンダの第一特性いかくは相手の攻撃力を下げない", () => {
     // calc は Intimidate を実装しているが発動フラグ（abilityOn）依存で、本アダプタはフラグを渡していないため未反映。反映されるようになったらこのテストが落ちる。
-    const withIntimidate = adapter.calculate({
+    const withIntimidate = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ボーマンダ" },
       moveName: "フレアドライブ",
     });
 
-    const withUnrelatedAbility = adapter.calculate({
+    const withUnrelatedAbility = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ボーマンダ", ability: "ものひろい" },
       moveName: "フレアドライブ",

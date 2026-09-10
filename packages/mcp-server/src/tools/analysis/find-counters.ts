@@ -3,7 +3,6 @@ import { z } from "zod";
 import { Generations } from "@smogon/calc";
 import type { TypeName } from "@smogon/calc/dist/data/interface";
 import {
-  DamageCalculatorAdapter,
   calculateTypeEffectiveness,
   compareSpeed,
   extractPriorityMoves,
@@ -27,17 +26,11 @@ import {
   getLearnsetMoveIdSet,
   movesById,
   pokemonById,
-  pokemonEntryProvider,
   toDataId,
   type MoveCategory,
 } from "../../data-store.js";
-import {
-  abilityNameResolver,
-  itemNameResolver,
-  moveNameResolver,
-  natureNameResolver,
-  pokemonNameResolver,
-} from "../../name-resolvers.js";
+import { moveNameResolver, pokemonNameResolver } from "../../name-resolvers.js";
+import { damageCalculator } from "../../calc/damage-calculator.js";
 import { withHint } from "../../tool-response-hint.js";
 
 const CHAMPIONS_GEN_NUM = 0;
@@ -350,17 +343,6 @@ export function buildCandidateEntries(
 }
 
 export function registerFindCountersTool(server: McpServer): void {
-  const calculator = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   server.tool(TOOL_NAME, TOOL_DESCRIPTION, inputSchema, async (args) => {
     try {
       const gen = Generations.get(CHAMPIONS_GEN_NUM);
@@ -371,7 +353,7 @@ export function registerFindCountersTool(server: McpServer): void {
 
       const targetEntry = resolvePokemonEntry(args.target.name);
       const { pokemon: targetObj, resolvedName: targetName }
-        = calculator.createPokemonObject(args.target);
+        = damageCalculator.createPokemonObject(args.target);
       const targetNameJa
         = pokemonNameResolver.toJapanese(targetName) ?? targetName;
 
@@ -399,10 +381,10 @@ export function registerFindCountersTool(server: McpServer): void {
         const candidateInput = candidate.input;
 
         let candidateObj: ReturnType<
-          typeof calculator.createPokemonObject
+          typeof damageCalculator.createPokemonObject
         >["pokemon"];
         try {
-          const created = calculator.createPokemonObject(candidateInput);
+          const created = damageCalculator.createPokemonObject(candidateInput);
           candidateObj = created.pokemon;
         } catch {
           continue;
@@ -411,7 +393,7 @@ export function registerFindCountersTool(server: McpServer): void {
         let outgoing: DamageCalcResult[] = [];
         let incoming: DamageCalcResult[] = [];
         try {
-          const allOutgoing = calculator.calculateAllMoves({
+          const allOutgoing = damageCalculator.calculateAllMoves({
             attacker: candidateInput,
             defender: args.target,
             conditions: damageConditions,
@@ -426,7 +408,7 @@ export function registerFindCountersTool(server: McpServer): void {
           outgoing = [];
         }
         try {
-          const allIncoming = calculator.calculateAllMoves({
+          const allIncoming = damageCalculator.calculateAllMoves({
             attacker: args.target,
             defender: candidateInput,
             conditions: damageConditions,

@@ -1,21 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { Generations, toID } from "@smogon/calc";
-import { DamageCalculatorAdapter, extractPriorityMoves } from "@ai-rotom/shared";
+import { extractPriorityMoves } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
 import {
   championsLearnsets,
   getLearnsetMoveIdSet,
   movesById,
-  pokemonEntryProvider,
   toDataId,
 } from "../../data-store";
-import {
-  pokemonNameResolver,
-  moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
-} from "../../name-resolvers";
+import { moveNameResolver } from "../../name-resolvers";
+import { damageCalculator } from "../../calc/damage-calculator";
 import {
   bestDamageEstimate,
   calculateDamageForMatchup,
@@ -25,16 +19,6 @@ const CHAMPIONS_GEN_NUM = 0;
 
 describe("analyze_selection logic", () => {
   const gen = Generations.get(CHAMPIONS_GEN_NUM);
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
 
   describe("タイプ相性の最大倍率", () => {
     it("みず vs ほのお/ひこう は 2 倍", () => {
@@ -57,10 +41,10 @@ describe("analyze_selection logic", () => {
 
   describe("6v6 マトリクス (小さいパーティ版)", () => {
     it("1対1 でもマトリクス 1 件が生成される", () => {
-      const { pokemon: p1 } = adapter.createPokemonObject({
+      const { pokemon: p1 } = damageCalculator.createPokemonObject({
         name: "リザードン",
       });
-      const { pokemon: p2 } = adapter.createPokemonObject({
+      const { pokemon: p2 } = damageCalculator.createPokemonObject({
         name: "ギャラドス",
       });
 
@@ -82,7 +66,7 @@ describe("analyze_selection logic", () => {
 
   describe("エッジケース", () => {
     it("パーティが 1 体だけでも動作する", () => {
-      const { pokemon, resolvedName } = adapter.createPokemonObject({
+      const { pokemon, resolvedName } = damageCalculator.createPokemonObject({
         name: "リザードン",
       });
       expect(pokemon.stats.spe).toBeGreaterThan(0);
@@ -241,7 +225,7 @@ describe("analyze_selection logic", () => {
       expect(learnsetIds.has("splash")).toBe(false);
 
       const results = calculateDamageForMatchup(
-        adapter,
+        damageCalculator,
         { name: "リザードン" },
         { name: "ギャラドス" },
         attackerId,
@@ -265,7 +249,7 @@ describe("analyze_selection logic", () => {
       const movesMap = new Map<string, string[]>([[attackerId, ["Blizzard"]]]);
 
       const results = calculateDamageForMatchup(
-        adapter,
+        damageCalculator,
         { name: "リザードン" },
         { name: "ギャラドス" },
         attackerId,
@@ -280,7 +264,7 @@ describe("analyze_selection logic", () => {
     it("learnset 未登録ポケモンは全技を通す (フォールバック挙動)", () => {
       const attackerId = toDataId("Charizard");
       const results = calculateDamageForMatchup(
-        adapter,
+        damageCalculator,
         { name: "リザードン" },
         { name: "ギャラドス" },
         attackerId,
@@ -290,7 +274,7 @@ describe("analyze_selection logic", () => {
       // フォールバックで空 Set の場合、@smogon/calc の calculateAllMoves 結果をそのまま返す
       // learnset 登録済みの charizard で実際に絞った結果より件数が多いことを確認
       const filteredResults = calculateDamageForMatchup(
-        adapter,
+        damageCalculator,
         { name: "リザードン" },
         { name: "ギャラドス" },
         attackerId,
@@ -397,14 +381,14 @@ describe("analyze_selection logic", () => {
       const attacker = { name: "ガブリアス" };
       const defender = { name: "カビゴン" };
 
-      const singlesResult = adapter.calculate({
+      const singlesResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "じしん",
         conditions: { battleFormat: "singles" },
       });
 
-      const doublesResult = adapter.calculate({
+      const doublesResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "じしん",
@@ -423,14 +407,14 @@ describe("analyze_selection logic", () => {
       const attacker = { name: "リザードン" };
       const defender = { name: "ガブリアス" };
 
-      const singlesResult = adapter.calculate({
+      const singlesResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "れいとうビーム",
         conditions: { battleFormat: "singles" },
       });
 
-      const doublesResult = adapter.calculate({
+      const doublesResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "れいとうビーム",
@@ -446,13 +430,13 @@ describe("analyze_selection logic", () => {
       const attacker = { name: "ガブリアス" };
       const defender = { name: "カビゴン" };
 
-      const noConditionsResult = adapter.calculate({
+      const noConditionsResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "じしん",
       });
 
-      const singlesResult = adapter.calculate({
+      const singlesResult = damageCalculator.calculate({
         attacker,
         defender,
         moveName: "じしん",

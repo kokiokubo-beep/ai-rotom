@@ -1,18 +1,11 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import {
-  DamageCalculatorAdapter,
-  conditionsSchema,
-  pokemonSchema,
-} from "@ai-rotom/shared";
+import { conditionsSchema, pokemonSchema } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
-import { pokemonEntryProvider } from "../../data-store.js";
+import { damageCalculator } from "../../calc/damage-calculator.js";
 import {
   pokemonNameResolver,
   moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
 } from "../../name-resolvers.js";
 import { toErrorResponse, withHint } from "../../tool-response-hint.js";
 
@@ -68,19 +61,6 @@ interface PartyMatchupOutput {
   matchups: PartyMatchupAttacker[];
 }
 
-function createCalculator(): DamageCalculatorAdapter {
-  return new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-}
-
 function extractBestMove(
   results: DamageCalcResult[],
   defenderNameEn: string,
@@ -103,8 +83,6 @@ function extractBestMove(
 }
 
 export function registerDamageCalculationTools(server: McpServer): void {
-  const calculator = createCalculator();
-
   // ツール1: calculate_damage_single
   server.tool(
     SINGLE_TOOL_NAME,
@@ -112,7 +90,7 @@ export function registerDamageCalculationTools(server: McpServer): void {
     damageCalcInputSchema,
     async (args) => {
       try {
-        const result = calculator.calculate({
+        const result = damageCalculator.calculate({
           attacker: args.attacker,
           defender: args.defender,
           moveName: args.moveName,
@@ -133,7 +111,7 @@ export function registerDamageCalculationTools(server: McpServer): void {
     allMovesInputSchema,
     async (args) => {
       try {
-        const results = calculator.calculateAllMoves({
+        const results = damageCalculator.calculateAllMoves({
           attacker: args.attacker,
           defender: args.defender,
           conditions: args.conditions,
@@ -191,7 +169,7 @@ export function registerDamageCalculationTools(server: McpServer): void {
         // 全 attacker x defender の組み合わせ
         for (const attacker of args.myParty) {
           const { resolvedName: attackerNameEn } =
-            calculator.createPokemonObject(attacker);
+            damageCalculator.createPokemonObject(attacker);
           const attackerNameJa =
             pokemonNameResolver.toJapanese(attackerNameEn) ?? attackerNameEn;
 
@@ -204,7 +182,7 @@ export function registerDamageCalculationTools(server: McpServer): void {
           };
 
           for (const defender of args.opponentParty) {
-            const results = calculator.calculateAllMoves({
+            const results = damageCalculator.calculateAllMoves({
               attacker,
               defender,
               conditions: args.conditions,

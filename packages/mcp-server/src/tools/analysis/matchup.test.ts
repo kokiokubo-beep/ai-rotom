@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { Generations, Pokemon } from "@smogon/calc";
 import type { TypeName } from "@smogon/calc/dist/data/interface";
 import {
-  DamageCalculatorAdapter,
   calculateTypeEffectiveness,
   extractPriorityMoves,
   filterResultsByLearnset,
@@ -11,37 +10,20 @@ import {
   championsLearnsets,
   getLearnsetMoveIdSet,
   movesById,
-  pokemonEntryProvider,
   toDataId,
 } from "../../data-store";
-import {
-  pokemonNameResolver,
-  moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
-} from "../../name-resolvers";
+import { moveNameResolver } from "../../name-resolvers";
+import { damageCalculator } from "../../calc/damage-calculator";
 
 const CHAMPIONS_GEN_NUM = 0;
 
 describe("analyze_matchup logic", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   describe("正常系", () => {
     it("日本語名でマッチアップ分析が実行できる", () => {
       const { pokemon: p1, resolvedName: name1 } =
-        adapter.createPokemonObject({ name: "リザードン" });
+        damageCalculator.createPokemonObject({ name: "リザードン" });
       const { pokemon: p2, resolvedName: name2 } =
-        adapter.createPokemonObject({ name: "ギャラドス" });
+        damageCalculator.createPokemonObject({ name: "ギャラドス" });
 
       expect(name1).toBe("Charizard");
       expect(name2).toBe("Gyarados");
@@ -49,12 +31,12 @@ describe("analyze_matchup logic", () => {
       expect(p2.stats.spe).toBeGreaterThan(0);
 
       // 双方向のダメージ計算
-      const p1Attacks = adapter.calculateAllMoves({
+      const p1Attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "リザードン" },
         defender: { name: "ギャラドス" },
       });
 
-      const p2Attacks = adapter.calculateAllMoves({
+      const p2Attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "ギャラドス" },
         defender: { name: "リザードン" },
       });
@@ -74,11 +56,11 @@ describe("analyze_matchup logic", () => {
     });
 
     it("能力ポイントによる素早さ変動が反映される", () => {
-      const { pokemon: pDefault } = adapter.createPokemonObject({
+      const { pokemon: pDefault } = damageCalculator.createPokemonObject({
         name: "ギャラドス",
       });
 
-      const { pokemon: pMaxSpe } = adapter.createPokemonObject({
+      const { pokemon: pMaxSpe } = damageCalculator.createPokemonObject({
         name: "ギャラドス",
         nature: "ようき",
         evs: { spe: 32 },
@@ -91,7 +73,7 @@ describe("analyze_matchup logic", () => {
   describe("エラー系", () => {
     it("存在しないポケモン名でエラーになる", () => {
       expect(() =>
-        adapter.createPokemonObject({ name: "ソニック" }),
+        damageCalculator.createPokemonObject({ name: "ソニック" }),
       ).toThrow("ポケモン「ソニック」が見つかりません。");
     });
   });
@@ -101,7 +83,7 @@ describe("analyze_matchup logic", () => {
       // ピカチュウ (Electric 単) は hydrocannon / blastburn / frenzyplant を
       // 覚えない。@smogon/calc は全技 DB を走査するため、フィルタしないと
       // これらがダメ計結果に混入する。
-      const attacks = adapter.calculateAllMoves({
+      const attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "ピカチュウ" },
         defender: { name: "ギャラドス" },
       });
@@ -122,7 +104,7 @@ describe("analyze_matchup logic", () => {
     });
 
     it("フィルタ後も攻撃技が 1 件以上残る", () => {
-      const attacks = adapter.calculateAllMoves({
+      const attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "ピカチュウ" },
         defender: { name: "ギャラドス" },
       });
@@ -140,7 +122,7 @@ describe("analyze_matchup logic", () => {
       const megaId = toDataId("Alakazam-Mega");
       expect(championsLearnsets[megaId]).toBeUndefined();
 
-      const attacks = adapter.calculateAllMoves({
+      const attacks = damageCalculator.calculateAllMoves({
         attacker: { name: "メガフーディン" },
         defender: { name: "ギャラドス" },
       });
@@ -206,7 +188,7 @@ describe("analyze_matchup logic", () => {
 
   describe("STAB・タイプ相性の構造化出力", () => {
     it("リザードン→ギャラドスの各技に STAB / typeMultiplier / effectivePowerMultiplier が付与される", () => {
-      const results = adapter.calculateAllMoves({
+      const results = damageCalculator.calculateAllMoves({
         attacker: { name: "リザードン" },
         defender: { name: "ギャラドス" },
       });
@@ -231,12 +213,12 @@ describe("analyze_matchup logic", () => {
     });
 
     it("typeSummary は両ポケモンのタイプに基づく最大相性倍率を返す", () => {
-      const { pokemon: p1 } = adapter.createPokemonObject({ name: "リザードン" });
-      const { pokemon: p2 } = adapter.createPokemonObject({ name: "ギャラドス" });
+      const { pokemon: p1 } = damageCalculator.createPokemonObject({ name: "リザードン" });
+      const { pokemon: p2 } = damageCalculator.createPokemonObject({ name: "ギャラドス" });
 
       // p1 (ほのお/ひこう) → p2 (みず/ひこう): Fire=0.5, Flying=1 → max 1
       // p2 (みず/ひこう) → p1 (ほのお/ひこう): Water=2, Flying=1 → max 2
-      const gen = adapter.getGen();
+      const gen = damageCalculator.getGen();
 
       const p1Max = Math.max(
         ...(p1.types as readonly TypeName[]).map((t) =>

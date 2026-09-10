@@ -61,10 +61,9 @@ export function registerFooTool(server: McpServer): void {
 - **入力検証**: Zod スキーマで（`@ai-rotom/shared` の既存スキーマ `pokemonSchema` 等を活用）
 - **名前解決**: `name-resolvers.ts` の `NameResolver` 経由
   - 類似名サジェスト: `resolver.suggestSimilar(name, 3)` を使い、エラーメッセージに含める
-- **ダメ計**: `DamageCalculatorAdapter`（`@ai-rotom/shared` から import）
-  初期化時に `pokemonEntryProvider` を必ず注入する:
+- **ダメ計**: `calc/damage-calculator.ts` が export する共有インスタンス `damageCalculator` を import する（`new DamageCalculatorAdapter(...)` を各ツールで個別に生成しない）:
   ```ts
-  const calculator = new DamageCalculatorAdapter(resolvers, pokemonEntryProvider);
+  import { damageCalculator } from "../../calc/damage-calculator.js";
   ```
 - **エラー応答**: `{ content: [...], isError: true }` + `JSON.stringify({ error })`
 - **成功応答**: `JSON.stringify(data)` をテキストで返す
