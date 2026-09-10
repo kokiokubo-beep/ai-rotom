@@ -610,3 +610,38 @@ describe("DamageCalculatorAdapter いかく (Intimidate) の未反映を固定",
     expect(withIntimidate.max).toBe(withUnrelatedAbility.max);
   });
 });
+
+describe("DamageCalculatorAdapter 計算エンジン内蔵リストに無い持ち物 (メガストーン) を持つ防御側の計算", () => {
+  it("防御側がメガストーンを持っていても計算が例外を投げない", () => {
+    expect(() =>
+      damageCalculator.calculate({
+        attacker: { name: "リザードン" },
+        defender: { name: "ボーマンダ", item: "ボーマンダナイト" },
+        moveName: "フレアドライブ",
+      }),
+    ).not.toThrow();
+  });
+
+  it("はたきおとすはメガストーン所持相手に威力補正を乗せない", () => {
+    // はたきおとすは持ち物を落とせる相手にだけ 1.5 倍が乗る。
+    // メガストーンは落とせないため補正対象外で、持ち物なしと同じ威力になる。
+    const withMegaStone = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ボーマンダ", item: "ボーマンダナイト" },
+      moveName: "はたきおとす",
+    });
+    const withoutItem = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ボーマンダ" },
+      moveName: "はたきおとす",
+    });
+    const withRemovableItem = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ボーマンダ", item: "たべのこし" },
+      moveName: "はたきおとす",
+    });
+
+    expect(withMegaStone.max).toBe(withoutItem.max);
+    expect(withMegaStone.max).toBeLessThan(withRemovableItem.max);
+  });
+});

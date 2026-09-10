@@ -16,6 +16,7 @@ export type {
   PokemonEntry,
   PokemonEntryProvider,
 } from "./types/pokemon.js";
+export type { CalcItemProvider } from "./types/item.js";
 export type { Party, PartyMember, PartiesFile } from "./types/party.js";
 
 // ダメージ計算モジュール。
