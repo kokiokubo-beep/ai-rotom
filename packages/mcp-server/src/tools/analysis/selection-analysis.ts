@@ -20,16 +20,10 @@ import {
   getLearnsetMoveIdSet,
   movesById,
   pokemonById,
-  pokemonEntryProvider,
   toDataId,
 } from "../../data-store.js";
-import {
-  abilityNameResolver,
-  itemNameResolver,
-  moveNameResolver,
-  natureNameResolver,
-  pokemonNameResolver,
-} from "../../name-resolvers.js";
+import { moveNameResolver, pokemonNameResolver } from "../../name-resolvers.js";
+import { damageCalculator } from "../../calc/damage-calculator.js";
 import { withHint } from "../../tool-response-hint.js";
 
 const CHAMPIONS_GEN_NUM = 0;
@@ -186,10 +180,10 @@ function resolveMovesMap(
  * movesMap に指定があればそれを、無ければ全技で計算する。
  * movesMap 未指定経路では attacker の learnset でフィルタし、覚えない技での過大評価を避ける。
  * 明示指定経路は learnset フィルタを掛けない（ユーザーの明示選択を尊重する既存仕様を維持）。
- * conditions (battleFormat 等) を calculator に伝える。
+ * conditions (battleFormat 等) を damageCalculator に伝える。
  */
 export function calculateDamageForMatchup(
-  calculator: DamageCalculatorAdapter,
+  damageCalculator: DamageCalculatorAdapter,
   attacker: PokemonInput,
   defender: PokemonInput,
   attackerId: string,
@@ -203,7 +197,7 @@ export function calculateDamageForMatchup(
     for (const moveName of explicitMoves) {
       try {
         results.push(
-          calculator.calculate({
+          damageCalculator.calculate({
             attacker,
             defender,
             moveName,
@@ -217,22 +211,11 @@ export function calculateDamageForMatchup(
     results.sort((a, b) => b.max - a.max);
     return results;
   }
-  const allResults = calculator.calculateAllMoves({ attacker, defender, conditions });
+  const allResults = damageCalculator.calculateAllMoves({ attacker, defender, conditions });
   return filterResultsByLearnset(allResults, attackerLearnsetIds, toDataId);
 }
 
 export function registerSelectionAnalysisTool(server: McpServer): void {
-  const calculator = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   server.tool(TOOL_NAME, TOOL_DESCRIPTION, inputSchema, async (args) => {
     try {
       const gen = Generations.get(CHAMPIONS_GEN_NUM);
@@ -253,7 +236,7 @@ export function registerSelectionAnalysisTool(server: McpServer): void {
 
       function buildMemberContext(input: PokemonInput): PartyMemberContext {
         const { pokemon, resolvedName } =
-          calculator.createPokemonObject(input);
+          damageCalculator.createPokemonObject(input);
         const entryId = toDataId(resolvedName);
         const entry = pokemonById.get(entryId);
         const nameJa =
@@ -325,7 +308,7 @@ export function registerSelectionAnalysisTool(server: McpServer): void {
           let damageEstimate: DamageEstimate | null = null;
           try {
             const results = calculateDamageForMatchup(
-              calculator,
+              damageCalculator,
               mine.input,
               opp.input,
               mine.entryId,

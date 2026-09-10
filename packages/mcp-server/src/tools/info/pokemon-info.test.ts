@@ -228,6 +228,301 @@ describe("get_pokemon_info", () => {
     });
   });
 
+  describe("追加ポケモン 27 種の基礎データ", () => {
+    // 件数が多いため table-driven に統一する
+    it.each([
+      {
+        nameJa: "プクリン",
+        name: "Wigglytuff",
+        types: ["Normal", "Fairy"],
+        baseStats: { hp: 140, atk: 70, def: 45, spa: 85, spd: 50, spe: 45 },
+        weightkg: 12,
+        abilities: ["Cute Charm", "Competitive", "Frisk"],
+      },
+      {
+        nameJa: "ペルシアン",
+        name: "Persian",
+        types: ["Normal"],
+        baseStats: { hp: 65, atk: 70, def: 60, spa: 65, spd: 65, spe: 115 },
+        weightkg: 32,
+        abilities: ["Limber", "Technician", "Unnerve"],
+      },
+      {
+        nameJa: "アローラペルシアン",
+        name: "Persian-Alola",
+        types: ["Dark"],
+        baseStats: { hp: 65, atk: 60, def: 60, spa: 75, spd: 65, spe: 115 },
+        weightkg: 33,
+        abilities: ["Fur Coat", "Technician", "Rattled"],
+      },
+      {
+        nameJa: "カモネギ",
+        name: "Farfetch'd",
+        types: ["Normal", "Flying"],
+        baseStats: { hp: 52, atk: 90, def: 55, spa: 58, spd: 62, spe: 60 },
+        weightkg: 15,
+        abilities: ["Keen Eye", "Inner Focus", "Defiant"],
+      },
+      {
+        nameJa: "バリヤード",
+        name: "Mr. Mime",
+        types: ["Psychic", "Fairy"],
+        baseStats: { hp: 40, atk: 45, def: 65, spa: 100, spd: 120, spe: 90 },
+        weightkg: 54.5,
+        abilities: ["Soundproof", "Filter", "Technician"],
+      },
+      {
+        nameJa: "マルノーム",
+        name: "Swalot",
+        types: ["Poison"],
+        baseStats: { hp: 100, atk: 73, def: 83, spa: 73, spd: 83, spe: 55 },
+        weightkg: 80,
+        abilities: ["Liquid Ooze", "Sticky Hold", "Gluttony"],
+      },
+      {
+        nameJa: "ゴーゴート",
+        name: "Gogoat",
+        types: ["Grass"],
+        baseStats: { hp: 123, atk: 100, def: 62, spa: 97, spd: 81, spe: 68 },
+        weightkg: 91,
+        abilities: ["Sap Sipper", "Grass Pelt"],
+      },
+      {
+        nameJa: "エースバーン",
+        name: "Cinderace",
+        types: ["Fire"],
+        baseStats: { hp: 80, atk: 116, def: 75, spa: 65, spd: 75, spe: 119 },
+        weightkg: 33,
+        abilities: ["Blaze", "Libero"],
+      },
+      {
+        nameJa: "インテレオン",
+        name: "Inteleon",
+        types: ["Water"],
+        baseStats: { hp: 70, atk: 85, def: 65, spa: 125, spd: 65, spe: 120 },
+        weightkg: 45.2,
+        abilities: ["Torrent", "Sniper"],
+      },
+      {
+        nameJa: "フォクスライ",
+        name: "Thievul",
+        types: ["Dark"],
+        baseStats: { hp: 70, atk: 58, def: 58, spa: 87, spd: 92, spe: 90 },
+        weightkg: 19.9,
+        abilities: ["Run Away", "Unburden", "Stakeout"],
+      },
+      {
+        nameJa: "ストリンダー(ハイ)",
+        name: "Toxtricity",
+        types: ["Electric", "Poison"],
+        baseStats: { hp: 75, atk: 98, def: 70, spa: 114, spd: 70, spe: 75 },
+        weightkg: 40,
+        abilities: ["Punk Rock", "Plus", "Technician"],
+      },
+      {
+        nameJa: "ストリンダー(ロー)",
+        name: "Toxtricity-Low-Key",
+        types: ["Electric", "Poison"],
+        baseStats: { hp: 75, atk: 98, def: 70, spa: 114, spd: 70, spe: 75 },
+        weightkg: 40,
+        abilities: ["Punk Rock", "Minus", "Technician"],
+      },
+      {
+        nameJa: "オトスパス",
+        name: "Grapploct",
+        types: ["Fighting"],
+        baseStats: { hp: 80, atk: 118, def: 90, spa: 70, spd: 80, spe: 42 },
+        weightkg: 39,
+        abilities: ["Limber", "Technician"],
+      },
+      {
+        nameJa: "ニャイキング",
+        name: "Perrserker",
+        types: ["Steel"],
+        baseStats: { hp: 70, atk: 110, def: 100, spa: 50, spd: 60, spe: 50 },
+        weightkg: 28,
+        abilities: ["Battle Armor", "Tough Claws", "Steely Spirit"],
+      },
+      {
+        nameJa: "ネギガナイト",
+        name: "Sirfetch'd",
+        types: ["Fighting"],
+        baseStats: { hp: 62, atk: 135, def: 95, spa: 68, spd: 82, spe: 65 },
+        weightkg: 117,
+        abilities: ["Steadfast", "Scrappy"],
+      },
+      {
+        nameJa: "バチンウニ",
+        name: "Pincurchin",
+        types: ["Electric"],
+        baseStats: { hp: 48, atk: 101, def: 95, spa: 91, spd: 85, spe: 15 },
+        weightkg: 1,
+        abilities: ["Lightning Rod", "Electric Surge"],
+      },
+      {
+        nameJa: "イエッサン(オス)",
+        name: "Indeedee",
+        types: ["Psychic", "Normal"],
+        baseStats: { hp: 60, atk: 65, def: 55, spa: 105, spd: 95, spe: 95 },
+        weightkg: 28,
+        abilities: ["Inner Focus", "Synchronize", "Psychic Surge"],
+      },
+      {
+        nameJa: "イエッサン(メス)",
+        name: "Indeedee-F",
+        types: ["Psychic", "Normal"],
+        baseStats: { hp: 70, atk: 55, def: 65, spa: 95, spd: 105, spe: 85 },
+        weightkg: 28,
+        abilities: ["Own Tempo", "Synchronize", "Psychic Surge"],
+      },
+      {
+        nameJa: "パーモット",
+        name: "Pawmot",
+        types: ["Electric", "Fighting"],
+        baseStats: { hp: 70, atk: 115, def: 70, spa: 70, spd: 60, spe: 105 },
+        weightkg: 41,
+        abilities: ["Volt Absorb", "Natural Cure", "Iron Fist"],
+      },
+      {
+        nameJa: "オリーヴァ",
+        name: "Arboliva",
+        types: ["Grass", "Normal"],
+        baseStats: { hp: 78, atk: 69, def: 90, spa: 125, spd: 109, spe: 39 },
+        weightkg: 48.2,
+        abilities: ["Seed Sower", "Harvest"],
+      },
+      {
+        nameJa: "イキリンコ(グリーンフェザー)",
+        name: "Squawkabilly",
+        types: ["Normal", "Flying"],
+        baseStats: { hp: 82, atk: 96, def: 51, spa: 45, spd: 51, spe: 92 },
+        weightkg: 2.4,
+        abilities: ["Intimidate", "Hustle", "Guts"],
+      },
+      {
+        nameJa: "イキリンコ(ブルーフェザー)",
+        name: "Squawkabilly-Blue",
+        types: ["Normal", "Flying"],
+        baseStats: { hp: 82, atk: 96, def: 51, spa: 45, spd: 51, spe: 92 },
+        weightkg: 2.4,
+        abilities: ["Intimidate", "Hustle", "Guts"],
+      },
+      {
+        nameJa: "イキリンコ(イエローフェザー)",
+        name: "Squawkabilly-Yellow",
+        types: ["Normal", "Flying"],
+        baseStats: { hp: 82, atk: 96, def: 51, spa: 45, spd: 51, spe: 92 },
+        weightkg: 2.4,
+        abilities: ["Intimidate", "Hustle", "Sheer Force"],
+      },
+      {
+        nameJa: "イキリンコ(ホワイトフェザー)",
+        name: "Squawkabilly-White",
+        types: ["Normal", "Flying"],
+        baseStats: { hp: 82, atk: 96, def: 51, spa: 45, spd: 51, spe: 92 },
+        weightkg: 2.4,
+        abilities: ["Intimidate", "Hustle", "Sheer Force"],
+      },
+      {
+        nameJa: "マフィティフ",
+        name: "Mabosstiff",
+        types: ["Dark"],
+        baseStats: { hp: 80, atk: 120, def: 90, spa: 60, spd: 70, spe: 85 },
+        weightkg: 61,
+        abilities: ["Intimidate", "Guard Dog", "Stakeout"],
+      },
+      {
+        nameJa: "メガグソクムシャ",
+        name: "Golisopod-Mega",
+        types: ["Bug", "Steel"],
+        baseStats: { hp: 75, atk: 150, def: 175, spa: 70, spd: 120, spe: 40 },
+        weightkg: 148,
+        abilities: ["Tough Claws"],
+      },
+      {
+        nameJa: "メガセグレイブ",
+        name: "Baxcalibur-Mega",
+        baseStats: {
+          hp: 115,
+          atk: 175,
+          def: 117,
+          spa: 105,
+          spd: 101,
+          spe: 87,
+        },
+        types: ["Dragon", "Ice"],
+        weightkg: 315,
+        abilities: ["Thermal Exchange"],
+      },
+    ])(
+      "$nameJa（$name）の types / baseStats / abilities / weightkg が取得でき、日本語名で解決できる",
+      ({ nameJa, name, types, baseStats, weightkg, abilities }) => {
+        const englishName = pokemonNameResolver.toEnglish(nameJa);
+        expect(englishName).toBe(name);
+
+        const entry = pokemonById.get(toDataId(englishName!));
+        expect(entry).toBeDefined();
+        expect(entry!.types).toEqual(types);
+        expect(entry!.baseStats).toEqual(baseStats);
+        expect(entry!.weightkg).toBe(weightkg);
+        expect(entry!.abilities).toEqual(abilities);
+      },
+    );
+  });
+
+  describe("新フォルムの otherFormes / baseSpecies", () => {
+    it("ペルシアンの otherFormes が [Persian-Alola] になる", () => {
+      const entry = pokemonById.get(toDataId("Persian"))!;
+      expect(entry.otherFormes).toEqual(["Persian-Alola"]);
+    });
+
+    it("ストリンダー(ハイ)の otherFormes が [Toxtricity-Low-Key] になる", () => {
+      const entry = pokemonById.get(toDataId("Toxtricity"))!;
+      expect(entry.otherFormes).toEqual(["Toxtricity-Low-Key"]);
+    });
+
+    it("イエッサン(オス)の otherFormes が [Indeedee-F] になる", () => {
+      const entry = pokemonById.get(toDataId("Indeedee"))!;
+      expect(entry.otherFormes).toEqual(["Indeedee-F"]);
+    });
+
+    it("イキリンコ(グリーンフェザー)の otherFormes が他 3 フェザーになる", () => {
+      const entry = pokemonById.get(toDataId("Squawkabilly"))!;
+      expect(entry.otherFormes).toEqual([
+        "Squawkabilly-Blue",
+        "Squawkabilly-White",
+        "Squawkabilly-Yellow",
+      ]);
+    });
+
+    it("グソクムシャの otherFormes が [Golisopod-Mega] になる", () => {
+      const entry = pokemonById.get(toDataId("Golisopod"))!;
+      expect(entry.otherFormes).toEqual(["Golisopod-Mega"]);
+    });
+
+    it("セグレイブの otherFormes が [Baxcalibur-Mega] になる", () => {
+      const entry = pokemonById.get(toDataId("Baxcalibur"))!;
+      expect(entry.otherFormes).toEqual(["Baxcalibur-Mega"]);
+    });
+
+    it.each([
+      { name: "Persian-Alola", baseSpecies: "Persian" },
+      { name: "Toxtricity-Low-Key", baseSpecies: "Toxtricity" },
+      { name: "Indeedee-F", baseSpecies: "Indeedee" },
+      { name: "Squawkabilly-Blue", baseSpecies: "Squawkabilly" },
+      { name: "Squawkabilly-White", baseSpecies: "Squawkabilly" },
+      { name: "Squawkabilly-Yellow", baseSpecies: "Squawkabilly" },
+      { name: "Golisopod-Mega", baseSpecies: "Golisopod" },
+      { name: "Baxcalibur-Mega", baseSpecies: "Baxcalibur" },
+    ])(
+      "$name の baseSpecies が $baseSpecies になる",
+      ({ name, baseSpecies }) => {
+        const entry = pokemonById.get(toDataId(name))!;
+        expect(entry.baseSpecies).toBe(baseSpecies);
+      },
+    );
+  });
+
   describe("英語名での情報取得", () => {
     it("英語名からポケモン情報が取得できる", () => {
       const inputName = "Garchomp";

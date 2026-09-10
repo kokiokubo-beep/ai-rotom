@@ -85,6 +85,80 @@ describe("get_item_info logic", () => {
     });
   });
 
+  describe("追加持ち物 14 件", () => {
+    const ITEMS = [
+      { nameJa: "ふうせん", name: "Air Balloon" },
+      { nameJa: "セグレイブナイト", name: "Baxcalibrite" },
+      { nameJa: "しめつけバンド", name: "Binding Band" },
+      { nameJa: "だっしゅつボタン", name: "Eject Button" },
+      { nameJa: "エレキシード", name: "Electric Seed" },
+      { nameJa: "グソクムシャナイト", name: "Golisopite" },
+      { nameJa: "グラスシード", name: "Grassy Seed" },
+      { nameJa: "ながねぎ", name: "Leek" },
+      { nameJa: "ミストシード", name: "Misty Seed" },
+      { nameJa: "ノーマルジュエル", name: "Normal Gem" },
+      { nameJa: "サイコシード", name: "Psychic Seed" },
+      { nameJa: "レッドカード", name: "Red Card" },
+      { nameJa: "ゴツゴツメット", name: "Rocky Helmet" },
+      { nameJa: "グランドコート", name: "Terrain Extender" },
+    ];
+
+    // 件数が多いため table-driven に統一する
+    it.each(ITEMS)(
+      "$nameJa（$name）が日英双方向で解決でき、desc が取得できる",
+      ({ nameJa, name }) => {
+        expect(itemNameResolver.toEnglish(nameJa)).toBe(name);
+        expect(itemNameResolver.toJapanese(name)).toBe(nameJa);
+
+        const entry = itemsById.get(toDataId(name));
+        expect(entry).toBeDefined();
+        expect(entry!.desc.length).toBeGreaterThan(0);
+      },
+    );
+
+    const MEGA_STONE_NAMES = ["Baxcalibrite", "Golisopite"];
+    const nonStoneNames = ITEMS.map((item) => item.name).filter(
+      (name) => !MEGA_STONE_NAMES.includes(name),
+    );
+
+    it.each(nonStoneNames)(
+      "%s は megaStone / megaEvolves が null になる",
+      (name) => {
+        const entry = itemsById.get(toDataId(name));
+        expect(entry!.megaStone).toBeNull();
+        expect(entry!.megaEvolves).toBeNull();
+      },
+    );
+  });
+
+  describe("グソクムシャナイト", () => {
+    it("megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Golisopite"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Golisopod-Mega");
+      expect(entry!.megaEvolves).toBe("Golisopod");
+    });
+
+    it("日本語名で解決できる", () => {
+      const englishName = itemNameResolver.toEnglish("グソクムシャナイト");
+      expect(englishName).toBe("Golisopite");
+    });
+  });
+
+  describe("セグレイブナイト", () => {
+    it("megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Baxcalibrite"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Baxcalibur-Mega");
+      expect(entry!.megaEvolves).toBe("Baxcalibur");
+    });
+
+    it("日本語名で解決できる", () => {
+      const englishName = itemNameResolver.toEnglish("セグレイブナイト");
+      expect(englishName).toBe("Baxcalibrite");
+    });
+  });
+
   describe("存在しない持ち物", () => {
     it("toEnglish で存在しない日本語名は undefined を返す", () => {
       const result = itemNameResolver.toEnglish("ないアイテム");

@@ -1,6 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
-  DamageCalculatorAdapter,
   calculateTypeEffectiveness,
   compareSpeed,
   conditionsSchema,
@@ -19,16 +18,10 @@ import {
   championsLearnsets,
   getLearnsetMoveIdSet,
   movesById,
-  pokemonEntryProvider,
   toDataId,
 } from "../../data-store.js";
-import {
-  pokemonNameResolver,
-  moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
-} from "../../name-resolvers.js";
+import { pokemonNameResolver, moveNameResolver } from "../../name-resolvers.js";
+import { damageCalculator } from "../../calc/damage-calculator.js";
 import { withHint } from "../../tool-response-hint.js";
 
 const TOOL_NAME = "analyze_matchup";
@@ -116,17 +109,6 @@ function maxTypeMultiplier(
 }
 
 export function registerMatchupTool(server: McpServer): void {
-  const calculator = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   server.tool(
     TOOL_NAME,
     TOOL_DESCRIPTION,
@@ -135,9 +117,9 @@ export function registerMatchupTool(server: McpServer): void {
       try {
         // 素早さを取得するために Pokemon オブジェクトを生成
         const { pokemon: p1, resolvedName: name1 } =
-          calculator.createPokemonObject(args.pokemon1);
+          damageCalculator.createPokemonObject(args.pokemon1);
         const { pokemon: p2, resolvedName: name2 } =
-          calculator.createPokemonObject(args.pokemon2);
+          damageCalculator.createPokemonObject(args.pokemon2);
 
         const nameJa1 =
           pokemonNameResolver.toJapanese(name1) ?? name1;
@@ -148,7 +130,7 @@ export function registerMatchupTool(server: McpServer): void {
         // @smogon/calc は全技 DB を走査するため、実際に覚えない技で過大評価
         // しないよう learnset で絞り込む。learnset 未登録のポケモンは
         // filterResultsByLearnset 側のフォールバックで全件返す。
-        const pokemon1AttacksRaw = calculator.calculateAllMoves({
+        const pokemon1AttacksRaw = damageCalculator.calculateAllMoves({
           attacker: args.pokemon1,
           defender: args.pokemon2,
           conditions: args.conditions,
@@ -160,7 +142,7 @@ export function registerMatchupTool(server: McpServer): void {
           toDataId,
         );
 
-        const pokemon2AttacksRaw = calculator.calculateAllMoves({
+        const pokemon2AttacksRaw = damageCalculator.calculateAllMoves({
           attacker: args.pokemon2,
           defender: args.pokemon1,
           conditions: args.conditions,
@@ -172,7 +154,7 @@ export function registerMatchupTool(server: McpServer): void {
           toDataId,
         );
 
-        const gen = calculator.getGen();
+        const gen = damageCalculator.getGen();
         const typeSummary: MatchupTypeSummary = {
           p1ToP2MaxByPokemonType: maxTypeMultiplier(p1.types, p2.types, gen),
           p2ToP1MaxByPokemonType: maxTypeMultiplier(p2.types, p1.types, gen),

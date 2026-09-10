@@ -45,6 +45,15 @@
     "megaEvolves": "Aggron"
   },
   {
+    "id": "airballoon",
+    "name": "Air Balloon",
+    "nameJa": "ふうせん",
+    "desc": "Holder is immune to Ground-type attacks. Pops when holder is hit.",
+    "shortDesc": "Holder is immune to Ground-type attacks. Pops when holder is hit.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
     "id": "alakazite",
     "name": "Alakazite",
     "nameJa": "フーディナイト",
@@ -117,6 +126,15 @@
     "megaEvolves": "Barbaracle"
   },
   {
+    "id": "baxcalibrite",
+    "name": "Baxcalibrite",
+    "nameJa": "セグレイブナイト",
+    "desc": "If held by a Baxcalibur, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by a Baxcalibur, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Baxcalibur-Mega",
+    "megaEvolves": "Baxcalibur"
+  },
+  {
     "id": "beedrillite",
     "name": "Beedrillite",
     "nameJa": "スピアナイト",
@@ -131,6 +149,15 @@
     "nameJa": "おおきなねっこ",
     "desc": "Holder gains 1.3x HP from draining/Aqua Ring/Ingrain/Leech Seed/Strength Sap.",
     "shortDesc": "Holder gains 1.3x HP from draining moves, Aqua Ring, Ingrain, Leech Seed, and Strength Sap."
+  },
+  {
+    "id": "bindingband",
+    "name": "Binding Band",
+    "nameJa": "しめつけバンド",
+    "desc": "Holder's partial-trapping moves deal 1/6 max HP per turn instead of 1/8.",
+    "shortDesc": "Holder's partial-trapping moves deal 1/6 max HP per turn instead of 1/8.",
+    "megaStone": null,
+    "megaEvolves": null
   },
   {
     "id": "blackbelt",
@@ -392,6 +419,24 @@
     "megaEvolves": "Eelektross"
   },
   {
+    "id": "ejectbutton",
+    "name": "Eject Button",
+    "nameJa": "だっしゅつボタン",
+    "desc": "If holder survives a hit, it immediately switches out to a chosen ally. Single use.",
+    "shortDesc": "If holder survives a hit, it immediately switches out to a chosen ally. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
+    "id": "electricseed",
+    "name": "Electric Seed",
+    "nameJa": "エレキシード",
+    "desc": "If the terrain is Electric Terrain, raises holder's Defense by 1 stage. Single use.",
+    "shortDesc": "If the terrain is Electric Terrain, raises holder's Defense by 1 stage. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
     "id": "emboarite",
     "name": "Emboarite",
     "nameJa": "エンブオナイト",
@@ -543,6 +588,15 @@
     "megaEvolves": "Glimmora"
   },
   {
+    "id": "golisopite",
+    "name": "Golisopite",
+    "nameJa": "グソクムシャナイト",
+    "desc": "If held by a Golisopod, this item allows it to Mega Evolve in battle.",
+    "shortDesc": "If held by a Golisopod, this item allows it to Mega Evolve in battle.",
+    "megaStone": "Golisopod-Mega",
+    "megaEvolves": "Golisopod"
+  },
+  {
     "id": "golurkite",
     "name": "Golurkite",
     "nameJa": "ゴルーグナイト",
@@ -550,6 +604,15 @@
     "shortDesc": "",
     "megaStone": "Golurk-Mega",
     "megaEvolves": "Golurk"
+  },
+  {
+    "id": "grassyseed",
+    "name": "Grassy Seed",
+    "nameJa": "グラスシード",
+    "desc": "If the terrain is Grassy Terrain, raises holder's Defense by 1 stage. Single use.",
+    "shortDesc": "If the terrain is Grassy Terrain, raises holder's Defense by 1 stage. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
   },
   {
     "id": "greninjite",
@@ -668,6 +731,15 @@
     "nameJa": "おうじゃのしるし",
     "desc": "Holder's attacks without a chance to make the target flinch gain a 10% chance to make the target flinch. Evolves Poliwhirl into Politoed and Slowpoke into Slowking when traded.",
     "shortDesc": "Holder's attacks without a chance to flinch gain a 10% chance to flinch.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
+    "id": "leek",
+    "name": "Leek",
+    "nameJa": "ながねぎ",
+    "desc": "If held by a Farfetch'd or Sirfetch'd, its critical hit ratio is raised by 2 stages.",
+    "shortDesc": "If held by a Farfetch'd or Sirfetch'd, its critical hit ratio is raised by 2 stages.",
     "megaStone": null,
     "megaEvolves": null
   },
@@ -855,6 +927,15 @@
     "megaEvolves": null
   },
   {
+    "id": "mistyseed",
+    "name": "Misty Seed",
+    "nameJa": "ミストシード",
+    "desc": "If the terrain is Misty Terrain, raises holder's Sp. Def by 1 stage. Single use.",
+    "shortDesc": "If the terrain is Misty Terrain, raises holder's Sp. Def by 1 stage. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
     "id": "muscleband",
     "name": "Muscle Band",
     "nameJa": "ちからのハチマキ",
@@ -876,6 +957,15 @@
     "nameJa": "とけないこおり",
     "desc": "Holder's Ice-type attacks have 1.2x power.",
     "shortDesc": "Holder's Ice-type attacks have 1.2x power.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
+    "id": "normalgem",
+    "name": "Normal Gem",
+    "nameJa": "ノーマルジュエル",
+    "desc": "Holder's first successful Normal-type attack will have 1.3x power. Single use.",
+    "shortDesc": "Holder's first successful Normal-type attack will have 1.3x power. Single use.",
     "megaStone": null,
     "megaEvolves": null
   },
@@ -961,6 +1051,15 @@
     "megaEvolves": null
   },
   {
+    "id": "psychicseed",
+    "name": "Psychic Seed",
+    "nameJa": "サイコシード",
+    "desc": "If the terrain is Psychic Terrain, raises holder's Sp. Def by 1 stage. Single use.",
+    "shortDesc": "If the terrain is Psychic Terrain, raises holder's Sp. Def by 1 stage. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
     "id": "pyroarite",
     "name": "Pyroarite",
     "nameJa": "カエンジシナイト",
@@ -1006,11 +1105,29 @@
     "megaEvolves": null
   },
   {
+    "id": "redcard",
+    "name": "Red Card",
+    "nameJa": "レッドカード",
+    "desc": "If holder survives a hit, attacker is forced to switch to a random ally. Single use.",
+    "shortDesc": "If holder survives a hit, attacker is forced to switch to a random ally. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
     "id": "rindoberry",
     "name": "Rindo Berry",
     "nameJa": "リンドのみ",
     "desc": "Halves damage taken from a supereffective Grass-type attack. Single use.",
     "shortDesc": "Halves damage taken from a supereffective Grass-type attack. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
+    "id": "rockyhelmet",
+    "name": "Rocky Helmet",
+    "nameJa": "ゴツゴツメット",
+    "desc": "If holder is hit by a contact move, the attacker loses 1/6 of its max HP.",
+    "shortDesc": "If holder is hit by a contact move, the attacker loses 1/6 of its max HP.",
     "megaStone": null,
     "megaEvolves": null
   },
@@ -1250,6 +1367,15 @@
     "nameJa": "タンガのみ",
     "desc": "Halves damage taken from a supereffective Bug-type attack. Single use.",
     "shortDesc": "Halves damage taken from a supereffective Bug-type attack. Single use.",
+    "megaStone": null,
+    "megaEvolves": null
+  },
+  {
+    "id": "terrainextender",
+    "name": "Terrain Extender",
+    "nameJa": "グランドコート",
+    "desc": "Holder's use of Electric/Grassy/Misty/Psychic Terrain lasts 8 turns instead of 5.",
+    "shortDesc": "Holder's use of Electric/Grassy/Misty/Psychic Terrain lasts 8 turns instead of 5.",
     "megaStone": null,
     "megaEvolves": null
   },

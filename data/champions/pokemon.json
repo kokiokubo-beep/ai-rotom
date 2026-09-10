@@ -7963,7 +7963,9 @@
     ],
     "weightkg": 210,
     "baseSpecies": null,
-    "otherFormes": null
+    "otherFormes": [
+      "Baxcalibur-Mega"
+    ]
   },
   {
     "id": "rillaboom",
@@ -8058,6 +8060,670 @@
     ],
     "weightkg": 108,
     "baseSpecies": null,
+    "otherFormes": [
+      "Golisopod-Mega"
+    ]
+  },
+  {
+    "id": "wigglytuff",
+    "name": "Wigglytuff",
+    "nameJa": "プクリン",
+    "types": [
+      "Normal",
+      "Fairy"
+    ],
+    "baseStats": {
+      "hp": 140,
+      "atk": 70,
+      "def": 45,
+      "spa": 85,
+      "spd": 50,
+      "spe": 45
+    },
+    "abilities": [
+      "Cute Charm",
+      "Competitive",
+      "Frisk"
+    ],
+    "weightkg": 12,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "persian",
+    "name": "Persian",
+    "nameJa": "ペルシアン",
+    "types": [
+      "Normal"
+    ],
+    "baseStats": {
+      "hp": 65,
+      "atk": 70,
+      "def": 60,
+      "spa": 65,
+      "spd": 65,
+      "spe": 115
+    },
+    "abilities": [
+      "Limber",
+      "Technician",
+      "Unnerve"
+    ],
+    "weightkg": 32,
+    "baseSpecies": null,
+    "otherFormes": [
+      "Persian-Alola"
+    ]
+  },
+  {
+    "id": "persianalola",
+    "name": "Persian-Alola",
+    "nameJa": "アローラペルシアン",
+    "types": [
+      "Dark"
+    ],
+    "baseStats": {
+      "hp": 65,
+      "atk": 60,
+      "def": 60,
+      "spa": 75,
+      "spd": 65,
+      "spe": 115
+    },
+    "abilities": [
+      "Fur Coat",
+      "Technician",
+      "Rattled"
+    ],
+    "weightkg": 33,
+    "baseSpecies": "Persian",
+    "otherFormes": null
+  },
+  {
+    "id": "farfetchd",
+    "name": "Farfetch'd",
+    "nameJa": "カモネギ",
+    "types": [
+      "Normal",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 52,
+      "atk": 90,
+      "def": 55,
+      "spa": 58,
+      "spd": 62,
+      "spe": 60
+    },
+    "abilities": [
+      "Keen Eye",
+      "Inner Focus",
+      "Defiant"
+    ],
+    "weightkg": 15,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "mrmime",
+    "name": "Mr. Mime",
+    "nameJa": "バリヤード",
+    "types": [
+      "Psychic",
+      "Fairy"
+    ],
+    "baseStats": {
+      "hp": 40,
+      "atk": 45,
+      "def": 65,
+      "spa": 100,
+      "spd": 120,
+      "spe": 90
+    },
+    "abilities": [
+      "Soundproof",
+      "Filter",
+      "Technician"
+    ],
+    "weightkg": 54.5,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "swalot",
+    "name": "Swalot",
+    "nameJa": "マルノーム",
+    "types": [
+      "Poison"
+    ],
+    "baseStats": {
+      "hp": 100,
+      "atk": 73,
+      "def": 83,
+      "spa": 73,
+      "spd": 83,
+      "spe": 55
+    },
+    "abilities": [
+      "Liquid Ooze",
+      "Sticky Hold",
+      "Gluttony"
+    ],
+    "weightkg": 80,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "gogoat",
+    "name": "Gogoat",
+    "nameJa": "ゴーゴート",
+    "types": [
+      "Grass"
+    ],
+    "baseStats": {
+      "hp": 123,
+      "atk": 100,
+      "def": 62,
+      "spa": 97,
+      "spd": 81,
+      "spe": 68
+    },
+    "abilities": [
+      "Sap Sipper",
+      "Grass Pelt"
+    ],
+    "weightkg": 91,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "cinderace",
+    "name": "Cinderace",
+    "nameJa": "エースバーン",
+    "types": [
+      "Fire"
+    ],
+    "baseStats": {
+      "hp": 80,
+      "atk": 116,
+      "def": 75,
+      "spa": 65,
+      "spd": 75,
+      "spe": 119
+    },
+    "abilities": [
+      "Blaze",
+      "Libero"
+    ],
+    "weightkg": 33,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "inteleon",
+    "name": "Inteleon",
+    "nameJa": "インテレオン",
+    "types": [
+      "Water"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 85,
+      "def": 65,
+      "spa": 125,
+      "spd": 65,
+      "spe": 120
+    },
+    "abilities": [
+      "Torrent",
+      "Sniper"
+    ],
+    "weightkg": 45.2,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "thievul",
+    "name": "Thievul",
+    "nameJa": "フォクスライ",
+    "types": [
+      "Dark"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 58,
+      "def": 58,
+      "spa": 87,
+      "spd": 92,
+      "spe": 90
+    },
+    "abilities": [
+      "Run Away",
+      "Unburden",
+      "Stakeout"
+    ],
+    "weightkg": 19.9,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "toxtricity",
+    "name": "Toxtricity",
+    "nameJa": "ストリンダー(ハイ)",
+    "types": [
+      "Electric",
+      "Poison"
+    ],
+    "baseStats": {
+      "hp": 75,
+      "atk": 98,
+      "def": 70,
+      "spa": 114,
+      "spd": 70,
+      "spe": 75
+    },
+    "abilities": [
+      "Punk Rock",
+      "Plus",
+      "Technician"
+    ],
+    "weightkg": 40,
+    "baseSpecies": null,
+    "otherFormes": [
+      "Toxtricity-Low-Key"
+    ]
+  },
+  {
+    "id": "toxtricitylowkey",
+    "name": "Toxtricity-Low-Key",
+    "nameJa": "ストリンダー(ロー)",
+    "types": [
+      "Electric",
+      "Poison"
+    ],
+    "baseStats": {
+      "hp": 75,
+      "atk": 98,
+      "def": 70,
+      "spa": 114,
+      "spd": 70,
+      "spe": 75
+    },
+    "abilities": [
+      "Punk Rock",
+      "Minus",
+      "Technician"
+    ],
+    "weightkg": 40,
+    "baseSpecies": "Toxtricity",
+    "otherFormes": null
+  },
+  {
+    "id": "grapploct",
+    "name": "Grapploct",
+    "nameJa": "オトスパス",
+    "types": [
+      "Fighting"
+    ],
+    "baseStats": {
+      "hp": 80,
+      "atk": 118,
+      "def": 90,
+      "spa": 70,
+      "spd": 80,
+      "spe": 42
+    },
+    "abilities": [
+      "Limber",
+      "Technician"
+    ],
+    "weightkg": 39,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "perrserker",
+    "name": "Perrserker",
+    "nameJa": "ニャイキング",
+    "types": [
+      "Steel"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 110,
+      "def": 100,
+      "spa": 50,
+      "spd": 60,
+      "spe": 50
+    },
+    "abilities": [
+      "Battle Armor",
+      "Tough Claws",
+      "Steely Spirit"
+    ],
+    "weightkg": 28,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "sirfetchd",
+    "name": "Sirfetch'd",
+    "nameJa": "ネギガナイト",
+    "types": [
+      "Fighting"
+    ],
+    "baseStats": {
+      "hp": 62,
+      "atk": 135,
+      "def": 95,
+      "spa": 68,
+      "spd": 82,
+      "spe": 65
+    },
+    "abilities": [
+      "Steadfast",
+      "Scrappy"
+    ],
+    "weightkg": 117,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "pincurchin",
+    "name": "Pincurchin",
+    "nameJa": "バチンウニ",
+    "types": [
+      "Electric"
+    ],
+    "baseStats": {
+      "hp": 48,
+      "atk": 101,
+      "def": 95,
+      "spa": 91,
+      "spd": 85,
+      "spe": 15
+    },
+    "abilities": [
+      "Lightning Rod",
+      "Electric Surge"
+    ],
+    "weightkg": 1,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "indeedee",
+    "name": "Indeedee",
+    "nameJa": "イエッサン(オス)",
+    "types": [
+      "Psychic",
+      "Normal"
+    ],
+    "baseStats": {
+      "hp": 60,
+      "atk": 65,
+      "def": 55,
+      "spa": 105,
+      "spd": 95,
+      "spe": 95
+    },
+    "abilities": [
+      "Inner Focus",
+      "Synchronize",
+      "Psychic Surge"
+    ],
+    "weightkg": 28,
+    "baseSpecies": null,
+    "otherFormes": [
+      "Indeedee-F"
+    ]
+  },
+  {
+    "id": "indeedeef",
+    "name": "Indeedee-F",
+    "nameJa": "イエッサン(メス)",
+    "types": [
+      "Psychic",
+      "Normal"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 55,
+      "def": 65,
+      "spa": 95,
+      "spd": 105,
+      "spe": 85
+    },
+    "abilities": [
+      "Own Tempo",
+      "Synchronize",
+      "Psychic Surge"
+    ],
+    "weightkg": 28,
+    "baseSpecies": "Indeedee",
+    "otherFormes": null
+  },
+  {
+    "id": "pawmot",
+    "name": "Pawmot",
+    "nameJa": "パーモット",
+    "types": [
+      "Electric",
+      "Fighting"
+    ],
+    "baseStats": {
+      "hp": 70,
+      "atk": 115,
+      "def": 70,
+      "spa": 70,
+      "spd": 60,
+      "spe": 105
+    },
+    "abilities": [
+      "Volt Absorb",
+      "Natural Cure",
+      "Iron Fist"
+    ],
+    "weightkg": 41,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "arboliva",
+    "name": "Arboliva",
+    "nameJa": "オリーヴァ",
+    "types": [
+      "Grass",
+      "Normal"
+    ],
+    "baseStats": {
+      "hp": 78,
+      "atk": 69,
+      "def": 90,
+      "spa": 125,
+      "spd": 109,
+      "spe": 39
+    },
+    "abilities": [
+      "Seed Sower",
+      "Harvest"
+    ],
+    "weightkg": 48.2,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "squawkabilly",
+    "name": "Squawkabilly",
+    "nameJa": "イキリンコ(グリーンフェザー)",
+    "types": [
+      "Normal",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 82,
+      "atk": 96,
+      "def": 51,
+      "spa": 45,
+      "spd": 51,
+      "spe": 92
+    },
+    "abilities": [
+      "Intimidate",
+      "Hustle",
+      "Guts"
+    ],
+    "weightkg": 2.4,
+    "baseSpecies": null,
+    "otherFormes": [
+      "Squawkabilly-Blue",
+      "Squawkabilly-White",
+      "Squawkabilly-Yellow"
+    ]
+  },
+  {
+    "id": "squawkabillyblue",
+    "name": "Squawkabilly-Blue",
+    "nameJa": "イキリンコ(ブルーフェザー)",
+    "types": [
+      "Normal",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 82,
+      "atk": 96,
+      "def": 51,
+      "spa": 45,
+      "spd": 51,
+      "spe": 92
+    },
+    "abilities": [
+      "Intimidate",
+      "Hustle",
+      "Guts"
+    ],
+    "weightkg": 2.4,
+    "baseSpecies": "Squawkabilly",
+    "otherFormes": null
+  },
+  {
+    "id": "squawkabillyyellow",
+    "name": "Squawkabilly-Yellow",
+    "nameJa": "イキリンコ(イエローフェザー)",
+    "types": [
+      "Normal",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 82,
+      "atk": 96,
+      "def": 51,
+      "spa": 45,
+      "spd": 51,
+      "spe": 92
+    },
+    "abilities": [
+      "Intimidate",
+      "Hustle",
+      "Sheer Force"
+    ],
+    "weightkg": 2.4,
+    "baseSpecies": "Squawkabilly",
+    "otherFormes": null
+  },
+  {
+    "id": "squawkabillywhite",
+    "name": "Squawkabilly-White",
+    "nameJa": "イキリンコ(ホワイトフェザー)",
+    "types": [
+      "Normal",
+      "Flying"
+    ],
+    "baseStats": {
+      "hp": 82,
+      "atk": 96,
+      "def": 51,
+      "spa": 45,
+      "spd": 51,
+      "spe": 92
+    },
+    "abilities": [
+      "Intimidate",
+      "Hustle",
+      "Sheer Force"
+    ],
+    "weightkg": 2.4,
+    "baseSpecies": "Squawkabilly",
+    "otherFormes": null
+  },
+  {
+    "id": "mabosstiff",
+    "name": "Mabosstiff",
+    "nameJa": "マフィティフ",
+    "types": [
+      "Dark"
+    ],
+    "baseStats": {
+      "hp": 80,
+      "atk": 120,
+      "def": 90,
+      "spa": 60,
+      "spd": 70,
+      "spe": 85
+    },
+    "abilities": [
+      "Intimidate",
+      "Guard Dog",
+      "Stakeout"
+    ],
+    "weightkg": 61,
+    "baseSpecies": null,
+    "otherFormes": null
+  },
+  {
+    "id": "golisopodmega",
+    "name": "Golisopod-Mega",
+    "nameJa": "メガグソクムシャ",
+    "types": [
+      "Bug",
+      "Steel"
+    ],
+    "baseStats": {
+      "hp": 75,
+      "atk": 150,
+      "def": 175,
+      "spa": 70,
+      "spd": 120,
+      "spe": 40
+    },
+    "abilities": [
+      "Tough Claws"
+    ],
+    "weightkg": 148,
+    "baseSpecies": "Golisopod",
+    "otherFormes": null
+  },
+  {
+    "id": "baxcaliburmega",
+    "name": "Baxcalibur-Mega",
+    "nameJa": "メガセグレイブ",
+    "types": [
+      "Dragon",
+      "Ice"
+    ],
+    "baseStats": {
+      "hp": 115,
+      "atk": 175,
+      "def": 117,
+      "spa": 105,
+      "spd": 101,
+      "spe": 87
+    },
+    "abilities": [
+      "Thermal Exchange"
+    ],
+    "weightkg": 315,
+    "baseSpecies": "Baxcalibur",
     "otherFormes": null
   }
 ]

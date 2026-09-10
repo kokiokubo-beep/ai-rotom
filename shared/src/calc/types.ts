@@ -63,7 +63,7 @@ export interface DamageCalcResult {
   /**
    * 技タイプと攻撃側タイプの一致フラグ（通常 STAB のみ）。
    * てきおうりょく等の特性補正は数値（damage/min/max）側に含まれる。
-   * Protean/Libero 等の型変化特性は考慮しない（species type 基準）。
+   * 技タイプと攻撃側タイプが一致する場合に加え、へんげんじざい / リベロ所持時も true になる。
    */
   isStab: boolean;
   /**

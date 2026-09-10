@@ -13,14 +13,9 @@ import type {
   PokemonInput,
 } from "@ai-rotom/shared";
 import type { MoveCategory } from "../../data-store.js";
-import { movesById, pokemonEntryProvider, toDataId } from "../../data-store.js";
-import {
-  abilityNameResolver,
-  itemNameResolver,
-  moveNameResolver,
-  natureNameResolver,
-  pokemonNameResolver,
-} from "../../name-resolvers.js";
+import { movesById, toDataId } from "../../data-store.js";
+import { moveNameResolver } from "../../name-resolvers.js";
+import { damageCalculator } from "../../calc/damage-calculator.js";
 import { withHint } from "../../tool-response-hint.js";
 
 /** 探索に使う SP 候補ステップ（細かさ）。4 きざみで枝刈り → hit したら 1 きざみで微調整 */
@@ -104,7 +99,7 @@ function survivesSingleHit(
  * ある SP 配分で単発耐えが成立するか試す。
  */
 function trySurvive(
-  calculator: DamageCalculatorAdapter,
+  damageCalculator: DamageCalculatorAdapter,
   attacker: PokemonInput,
   defender: PokemonInput,
   moveName: string,
@@ -123,15 +118,15 @@ function trySurvive(
   };
 
   try {
-    const result = calculator.calculate({
+    const result = damageCalculator.calculate({
       attacker,
       defender: testDefender,
       moveName,
       conditions,
     });
 
-    // calculator から maxHp を再取得するために createPokemonObject を使う
-    const { pokemon: defObj } = calculator.createPokemonObject(testDefender);
+    // damageCalculator から maxHp を再取得するために createPokemonObject を使う
+    const { pokemon: defObj } = damageCalculator.createPokemonObject(testDefender);
     const survived = survivesSingleHit(result.max, defObj.maxHP());
     return { survived, result };
   } catch {
@@ -154,7 +149,7 @@ function defenseKeyForMove(category: MoveCategory): DefenseStatKey {
  * 見つからない場合は null。
  *
  * 実装方針:
- *   calculator 呼び出しは重いので coarse (STEP=4) → fine (STEP=1) で段階的に絞る。
+ *   damageCalculator 呼び出しは重いので coarse (STEP=4) → fine (STEP=1) で段階的に絞る。
  *   Phase 1 (coarse): 粗いステップで全組を試し、hpSp + defSp が最小の耐えた組を記録。
  *     早期 break せず全探索することで、HP 側に偏った (hpSp 小, defSp 大) 候補に
  *     固定されるのを避け、(hpSp 大, defSp 小) の合計最小候補も正しく拾う。
@@ -162,7 +157,7 @@ function defenseKeyForMove(category: MoveCategory): DefenseStatKey {
  *   Phase 2 (fine): coarse で見つかった組の周辺を fine ステップで微調整。
  */
 export function findMinimalSurvivalSp(
-  calculator: DamageCalculatorAdapter,
+  damageCalculator: DamageCalculatorAdapter,
   attacker: PokemonInput,
   defender: PokemonInput,
   moveName: string,
@@ -190,7 +185,7 @@ export function findMinimalSurvivalSp(
       // 既知の最小合計を超える候補は評価不要（枝刈り）
       if (hpSp + defSp >= coarseBestTotal) continue;
       const { survived } = trySurvive(
-        calculator,
+        damageCalculator,
         attacker,
         defender,
         moveName,
@@ -209,7 +204,7 @@ export function findMinimalSurvivalSp(
   if (coarseBest === null) {
     // coarse で耐えられる候補が見つからない場合、最大振りで試す
     const { survived } = trySurvive(
-      calculator,
+      damageCalculator,
       attacker,
       defender,
       moveName,
@@ -246,7 +241,7 @@ export function findMinimalSurvivalSp(
       if (hpSp + defSp >= bestTotal) continue;
 
       const { survived } = trySurvive(
-        calculator,
+        damageCalculator,
         attacker,
         defender,
         moveName,
@@ -270,17 +265,6 @@ export function findMinimalSurvivalSp(
 }
 
 export function registerDamageRangeTool(server: McpServer): void {
-  const calculator = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   server.tool(TOOL_NAME, TOOL_DESCRIPTION, inputSchema, async (args) => {
     try {
       // 技カテゴリを取得
@@ -307,14 +291,14 @@ export function registerDamageRangeTool(server: McpServer): void {
       }
 
       // 防御側 HP を取得
-      const { pokemon: defObj } = calculator.createPokemonObject(args.defender);
+      const { pokemon: defObj } = damageCalculator.createPokemonObject(args.defender);
       const defenderMaxHp = defObj.maxHP();
 
       // ベースライン（入力通り）のダメージ計算。
       // 0 ダメ（無効タイプ等）の場合は @smogon/calc が例外を投げるので捕捉してフォールバックする。
       let baseResult: DamageCalcResult | null = null;
       try {
-        baseResult = calculator.calculate({
+        baseResult = damageCalculator.calculate({
           attacker: args.attacker,
           defender: args.defender,
           moveName: args.moveName,
@@ -339,7 +323,7 @@ export function registerDamageRangeTool(server: McpServer): void {
       if (moveEntry.category !== "Status" && baseResult !== null) {
         const defenseKey = defenseKeyForMove(moveEntry.category);
         survivalSpConfig = findMinimalSurvivalSp(
-          calculator,
+          damageCalculator,
           args.attacker,
           args.defender,
           args.moveName,

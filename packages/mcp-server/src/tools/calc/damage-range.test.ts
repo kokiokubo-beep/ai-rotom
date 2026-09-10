@@ -1,32 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { DamageCalculatorAdapter } from "@ai-rotom/shared";
-import {
-  pokemonNameResolver,
-  moveNameResolver,
-  abilityNameResolver,
-  itemNameResolver,
-  natureNameResolver,
-} from "../../name-resolvers";
-import { movesById, pokemonEntryProvider, toDataId } from "../../data-store";
+import { moveNameResolver } from "../../name-resolvers";
+import { movesById, toDataId } from "../../data-store";
+import { damageCalculator } from "../../calc/damage-calculator";
 import { findMinimalSurvivalSp } from "./damage-range";
 import type { PokemonInput } from "@ai-rotom/shared";
 
 describe("analyze_damage_range logic", () => {
-  const adapter = new DamageCalculatorAdapter(
-    {
-      pokemon: pokemonNameResolver,
-      move: moveNameResolver,
-      ability: abilityNameResolver,
-      item: itemNameResolver,
-      nature: natureNameResolver,
-    },
-    pokemonEntryProvider,
-  );
-
   describe("ベースライン計算", () => {
     it("じしん (物理) のダメージ計算ができる", () => {
       // じしんは Flying に無効なので、地上タイプのドサイドンを防御側にする
-      const result = adapter.calculate({
+      const result = damageCalculator.calculate({
         attacker: { name: "ガブリアス" },
         defender: { name: "ドサイドン" },
         moveName: "じしん",
@@ -36,7 +19,7 @@ describe("analyze_damage_range logic", () => {
     });
 
     it("なみのり (特殊) のダメージ計算ができる", () => {
-      const result = adapter.calculate({
+      const result = damageCalculator.calculate({
         attacker: { name: "ギャラドス" },
         defender: { name: "リザードン" },
         moveName: "なみのり",
@@ -105,12 +88,12 @@ describe("analyze_damage_range logic", () => {
   describe("SP 振りによる耐久向上", () => {
     it("HP / 防御に SP を振れば単発耐え可能性が上がる", () => {
       // じしんは ドサイドン (Ground/Rock) に抜群(2倍)
-      const noEv = adapter.calculate({
+      const noEv = damageCalculator.calculate({
         attacker: { name: "ガブリアス" },
         defender: { name: "ドサイドン" },
         moveName: "じしん",
       });
-      const withEv = adapter.calculate({
+      const withEv = damageCalculator.calculate({
         attacker: { name: "ガブリアス" },
         defender: {
           name: "ドサイドン",
@@ -126,7 +109,7 @@ describe("analyze_damage_range logic", () => {
   describe("エラー系", () => {
     it("存在しない技名はエラーになる", () => {
       expect(() =>
-        adapter.calculate({
+        damageCalculator.calculate({
           attacker: { name: "ガブリアス" },
           defender: { name: "リザードン" },
           moveName: "スーパーじしん",
@@ -160,13 +143,13 @@ describe("analyze_damage_range logic", () => {
         },
       };
       try {
-        const result = adapter.calculate({
+        const result = damageCalculator.calculate({
           attacker,
           defender: testDefender,
           moveName,
         });
         const { pokemon: defObj } =
-          adapter.createPokemonObject(testDefender);
+          damageCalculator.createPokemonObject(testDefender);
         return result.max < defObj.maxHP();
       } catch {
         return true;
@@ -201,7 +184,7 @@ describe("analyze_damage_range logic", () => {
       const attacker: PokemonInput = { name: "ガブリアス" };
       const defender: PokemonInput = { name: "ハッサム" };
       const config = findMinimalSurvivalSp(
-        adapter,
+        damageCalculator,
         attacker,
         defender,
         "だいもんじ",
@@ -261,7 +244,7 @@ describe("analyze_damage_range logic", () => {
         // (hpSp 大, defSp 小) の合計最小候補を見落とすことがあった。
         // 修正後は coarse でも全探索し、合計最小の耐える組を記録する。
         const config = findMinimalSurvivalSp(
-          adapter,
+          damageCalculator,
           attacker,
           defender,
           moveName,
@@ -303,7 +286,7 @@ describe("analyze_damage_range logic", () => {
       };
       const defender: PokemonInput = { name: "サザンドラ" };
       const config = findMinimalSurvivalSp(
-        adapter,
+        damageCalculator,
         attacker,
         defender,
         "げきりん",
