@@ -380,6 +380,18 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
 
     expect(result.description).toContain("(120 BP");
   });
+
+  it("メガジジーロン (185kg) へのくさむすびは 100 BP で計算される", () => {
+    // 計算エンジン内蔵の Drampa-Mega は 240.5kg で 120 BP 区分に入る。
+    // 100 BP になること自体が pokemon.json の weightkg が内蔵値を上書きしている証拠になる。
+    const result = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガジジーロン" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(100 BP");
+  });
 });
 
 describe("DamageCalculatorAdapter.calculateAllMoves", () => {
