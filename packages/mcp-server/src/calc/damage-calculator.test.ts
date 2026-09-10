@@ -92,17 +92,20 @@ describe("@smogon/calc Champions integration", () => {
 const SPECIES_ABSENT_FROM_GEN0 = [
   "Rillaboom",
   "Baxcalibur",
+  "Baxcalibur-Mega",
   "Salamence",
   "Salamence-Mega",
   "Golisopod",
+  "Golisopod-Mega",
 ] as const;
 
 describe("@smogon/calc gen0 に収録されていない新規種族", () => {
   const gen = Generations.get(CHAMPIONS_GEN_NUM);
 
   it("ポケチャン追加種は gen0 の内蔵種族データに存在しない", () => {
-    // 落ちたら vendored calc が該当種を収録した合図。
-    // その時は overrides の意味が変わるので関連テストを見直す。
+    // 下記の種が gen0 に無いことを前提に、overrides 以外にデータ供給元が
+    // 無いことを論証しているテストがある（重さ依存技の BP 判定など）。
+    // 落ちたら vendored calc が該当種を収録した合図なので、関連テストを見直す。
     for (const name of SPECIES_ABSENT_FROM_GEN0) {
       expect(gen.species.get(toID(name))).toBeUndefined();
     }
@@ -356,6 +359,26 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
     });
 
     expect(result.description).toContain("(100 BP");
+  });
+
+  it("メガグソクムシャ (148kg) へのくさむすびは 100 BP で計算される", () => {
+    const result = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガグソクムシャ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(100 BP");
+  });
+
+  it("メガセグレイブ (315kg) へのくさむすびは 120 BP で計算される", () => {
+    const result = damageCalculator.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガセグレイブ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(120 BP");
   });
 });
 
@@ -661,6 +684,20 @@ describe("DamageCalculatorAdapter へんげんじざい (Protean) の STAB 判�
       STAB_MULTIPLIER * FIGHTING_VS_NORMAL_MULTIPLIER,
     );
     expect(result.description).toContain("Protean");
+  });
+});
+
+describe("DamageCalculatorAdapter リベロ (Libero) の STAB 判定", () => {
+  it("エースバーンのリベロ明示指定で、インファイトに STAB が乗る", () => {
+    // エースバーンの第一特性は Blaze のため、Libero の検証には明示指定が必要。
+    const result = damageCalculator.calculate({
+      attacker: { name: "エースバーン", ability: "リベロ" },
+      defender: { name: "カビゴン" },
+      moveName: "インファイト",
+    });
+
+    expect(result.isStab).toBe(true);
+    expect(result.description).toContain("Libero");
   });
 });
 

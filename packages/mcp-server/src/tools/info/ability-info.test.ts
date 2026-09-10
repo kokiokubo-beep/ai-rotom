@@ -72,6 +72,33 @@ describe("get_ability_info logic", () => {
     });
   });
 
+  describe("追加特性 9 件", () => {
+    // 件数が多いため table-driven に統一する
+    it.each([
+      { nameJa: "くさのけがわ", name: "Grass Pelt" },
+      { nameJa: "ばんけん", name: "Guard Dog" },
+      { nameJa: "リベロ", name: "Libero" },
+      { nameJa: "サイコメイカー", name: "Psychic Surge" },
+      { nameJa: "パンクロック", name: "Punk Rock" },
+      { nameJa: "にげあし", name: "Run Away" },
+      { nameJa: "こぼれダネ", name: "Seed Sower" },
+      { nameJa: "はりこみ", name: "Stakeout" },
+      { nameJa: "はがねのせいしん", name: "Steely Spirit" },
+    ])(
+      // Guard Dog / Stakeout / Libero は文言の確度が低いため、完全一致・部分一致は取らず非空のみ検証する
+      "$nameJa（$name）が日英双方向で解決でき、desc / shortDesc が取得できる",
+      ({ nameJa, name }) => {
+        expect(abilityNameResolver.toEnglish(nameJa)).toBe(name);
+        expect(abilityNameResolver.toJapanese(name)).toBe(nameJa);
+
+        const entry = abilitiesById.get(toDataId(name));
+        expect(entry).toBeDefined();
+        expect(entry!.desc.length).toBeGreaterThan(0);
+        expect(entry!.shortDesc.length).toBeGreaterThan(0);
+      },
+    );
+  });
+
   describe("存在しない特性", () => {
     it("toEnglish で存在しない日本語名は undefined を返す", () => {
       const result = abilityNameResolver.toEnglish("ない特性");
