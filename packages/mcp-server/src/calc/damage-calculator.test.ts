@@ -645,3 +645,21 @@ describe("DamageCalculatorAdapter 計算エンジン内蔵リストに無い持�
     expect(withMegaStone.max).toBeLessThan(withRemovableItem.max);
   });
 });
+
+describe("DamageCalculatorAdapter へんげんじざい (Protean) の STAB 判定", () => {
+  it("メガゲッコウガ (Protean) のインファイトは種族タイプに無い技でも STAB が乗る", () => {
+    // ability 省略 = pokemon.json の第一特性 (Protean) が自動適用される。
+    const result = damageCalculator.calculate({
+      attacker: { name: "メガゲッコウガ" },
+      defender: { name: "カビゴン" },
+      moveName: "インファイト",
+    });
+
+    const FIGHTING_VS_NORMAL_MULTIPLIER = 2;
+    expect(result.isStab).toBe(true);
+    expect(result.effectivePowerMultiplier).toBe(
+      STAB_MULTIPLIER * FIGHTING_VS_NORMAL_MULTIPLIER,
+    );
+    expect(result.description).toContain("Protean");
+  });
+});

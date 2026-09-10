@@ -44,7 +44,10 @@ function buildTypeMetrics(
     moveType,
     defender.types as readonly TypeName[],
   );
-  const isStab = (attacker.types as readonly TypeName[]).includes(moveType);
+  // calc の Protean / Libero はポケモンのタイプを書き換えず STAB 補正だけを足すため、types だけ見ると取りこぼす。
+  const isStab =
+    (attacker.types as readonly TypeName[]).includes(moveType) ||
+    attacker.hasAbility("Protean", "Libero");
   const stabMultiplier = isStab ? STAB_MULTIPLIER : NON_STAB_MULTIPLIER;
   return {
     moveType,
