@@ -150,6 +150,10 @@ describe("search_pokemon_by_type_effectiveness logic", () => {
     it("エースバーンが Fire の攻撃技持ちとして判定される", () => {
       expect(hasAttackingMoveOfType(toDataId("Cinderace"), "Fire")).toBe(true);
     });
+
+    it("メガシンカ後のフォルムは learnset を持たないため false になる", () => {
+      expect(hasAttackingMoveOfType(toDataId("Starmie-Mega"), "Water")).toBe(false);
+    });
   });
 
   describe("複合条件 (AND)", () => {

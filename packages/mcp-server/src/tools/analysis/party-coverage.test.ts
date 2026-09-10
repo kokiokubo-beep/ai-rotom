@@ -759,5 +759,10 @@ describe("analyze_party_coverage logic", () => {
       expect(out.attackingTypes.length).toBeGreaterThan(0);
       expect(out.attackingTypes.some((t) => t.type === "Fire")).toBe(true);
     });
+
+    it("技未指定のメガシンカ後フォルムは learnset を持たないため attackingTypes が空のまま", () => {
+      const out = analyzePartyCoverage({ myParty: [{ name: "メガスターミー" }] });
+      expect(out.attackingTypes).toHaveLength(0);
+    });
   });
 });

@@ -566,6 +566,12 @@ describe("get_pokemon_info", () => {
       expect(result.learnableMoveCount).not.toBeNull();
       expect(result.learnableMoveCount).toBeGreaterThan(0);
     });
+
+    it("メガシンカ後のフォルムは learnset を持たないため learnableMoveCount が null のまま", () => {
+      const entry = pokemonById.get(toDataId("Starmie-Mega"))!;
+      const result = buildPokemonInfoResult(entry);
+      expect(result.learnableMoveCount).toBeNull();
+    });
   });
 });
 
