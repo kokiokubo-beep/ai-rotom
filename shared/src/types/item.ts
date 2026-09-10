@@ -1,6 +1,6 @@
 /**
  * @smogon/calc の内蔵持ち物データに無い持ち物を補うためのプロバイダ。
- * calc の Champions 世代は持ち物を 148 件しか持たないため、
+ * calc の Champions 世代は内蔵の持ち物リストが不完全なため、
  * items.json 側から不足分を注入する。
  */
 export interface CalcItemProvider {
