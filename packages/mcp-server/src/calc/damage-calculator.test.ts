@@ -3,6 +3,7 @@ import { calculate, Generations, Pokemon, Move, Field, toID } from "@smogon/calc
 import { STAB_MULTIPLIER } from "@ai-rotom/shared";
 import type { DamageCalcResult } from "@ai-rotom/shared";
 import { damageCalculator } from "./damage-calculator.js";
+import { championsItems } from "../data-store.js";
 
 const CHAMPIONS_GEN_NUM = 0;
 
@@ -86,6 +87,22 @@ describe("@smogon/calc Champions integration", () => {
     const [minNormal] = resultNormal.range();
 
     expect(minBoosted).toBeGreaterThan(minNormal);
+  });
+});
+
+describe("items.json と計算エンジンの持ち物データの突合", () => {
+  const gen = Generations.get(CHAMPIONS_GEN_NUM);
+
+  it("items.json の全持ち物が gen0 の内蔵持ち物データに存在する", () => {
+    // gen0 の威力補正処理は防御側の持ち物を gen.items.get(...)! で非 null 前提に参照する。
+    // 内蔵に無い持ち物を持たせると、はたきおとすに限らずその防御側への全計算が
+    // TypeError で落ちる。実行時は英語名を toID した値で引くため、id 列ではなく
+    // name から照合する。
+    const missingIds = championsItems
+      .map((item) => toID(item.name))
+      .filter((id) => gen.items.get(id) === undefined);
+
+    expect(missingIds).toEqual([]);
   });
 });
 
