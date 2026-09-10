@@ -663,3 +663,51 @@ describe("DamageCalculatorAdapter へんげんじざい (Protean) の STAB 判�
     expect(result.description).toContain("Protean");
   });
 });
+
+describe("DamageCalculatorAdapter ふうせん (Air Balloon) の非接地反映確認", () => {
+  it("ふうせん所持でグラスフィールドのじしん半減が外れる", () => {
+    // グラスフィールドは接地している防御側へのじしんを半減する。ふうせんで非接地になると
+    // 半減が外れるため、この差分は防御側の持ち物が計算エンジンまで届いていることの証明になる。
+    const withoutTerrain = damageCalculator.calculate({
+      attacker: { name: "ガブリアス" },
+      defender: { name: "カビゴン" },
+      moveName: "じしん",
+    });
+
+    const withTerrain = damageCalculator.calculate({
+      attacker: { name: "ガブリアス" },
+      defender: { name: "カビゴン" },
+      moveName: "じしん",
+      conditions: { terrain: "Grassy" },
+    });
+
+    const withTerrainAndBalloon = damageCalculator.calculate({
+      attacker: { name: "ガブリアス" },
+      defender: { name: "カビゴン", item: "ふうせん" },
+      moveName: "じしん",
+      conditions: { terrain: "Grassy" },
+    });
+
+    expect(withTerrain.max).toBeLessThan(withoutTerrain.max);
+    expect(withTerrainAndBalloon.max).toBe(withoutTerrain.max);
+  });
+
+  it("ふうせんのじめん技無効はダメージ計算に反映されない", () => {
+    // 落ちたら計算エンジンがふうせんの無効化を実装した合図。
+    // README と instructions.ts の注記を見直してからテストを更新する。
+    const withoutTerrain = damageCalculator.calculate({
+      attacker: { name: "ガブリアス" },
+      defender: { name: "カビゴン" },
+      moveName: "じしん",
+    });
+
+    const withTerrainAndBalloon = damageCalculator.calculate({
+      attacker: { name: "ガブリアス" },
+      defender: { name: "カビゴン", item: "ふうせん" },
+      moveName: "じしん",
+      conditions: { terrain: "Grassy" },
+    });
+
+    expect(withTerrainAndBalloon.min).toBe(withoutTerrain.min);
+  });
+});
