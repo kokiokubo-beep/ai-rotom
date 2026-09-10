@@ -68,6 +68,67 @@ describe("get_pokemon_info", () => {
     });
   });
 
+  describe("Z メガシンカ 3 体", () => {
+    it("メガルカリオZ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Lucario-Mega-Z"))!;
+      expect(entry.types).toEqual(["Fighting", "Steel"]);
+      expect(entry.baseStats.hp).toBe(70);
+      expect(entry.baseStats.atk).toBe(100);
+      expect(entry.baseStats.def).toBe(70);
+      expect(entry.baseStats.spa).toBe(164);
+      expect(entry.baseStats.spd).toBe(70);
+      expect(entry.baseStats.spe).toBe(151);
+      expect(entry.abilities).toEqual(["Aura Guard"]);
+      expect(entry.weightkg).toBe(49.4);
+    });
+
+    it("メガガブリアスZ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Garchomp-Mega-Z"))!;
+      expect(entry.types).toEqual(["Dragon"]);
+      expect(entry.baseStats.hp).toBe(108);
+      expect(entry.baseStats.atk).toBe(130);
+      expect(entry.baseStats.def).toBe(85);
+      expect(entry.baseStats.spa).toBe(141);
+      expect(entry.baseStats.spd).toBe(85);
+      expect(entry.baseStats.spe).toBe(151);
+      expect(entry.abilities).toEqual(["Levitate"]);
+      expect(entry.weightkg).toBe(99);
+    });
+
+    it("メガアブソルZ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Absol-Mega-Z"))!;
+      expect(entry.types).toEqual(["Dark", "Ghost"]);
+      expect(entry.baseStats.hp).toBe(65);
+      expect(entry.baseStats.atk).toBe(154);
+      expect(entry.baseStats.def).toBe(60);
+      expect(entry.baseStats.spa).toBe(75);
+      expect(entry.baseStats.spd).toBe(60);
+      expect(entry.baseStats.spe).toBe(151);
+      expect(entry.abilities).toEqual(["Sharpness"]);
+      expect(entry.weightkg).toBe(49);
+    });
+
+    it("ルカリオの otherFormes が非 Z メガを先頭にした 2 件になる", () => {
+      const entry = pokemonById.get(toDataId("Lucario"))!;
+      expect(entry.otherFormes).toEqual(["Lucario-Mega", "Lucario-Mega-Z"]);
+    });
+
+    it("ガブリアスの otherFormes が非 Z メガを先頭にした 2 件になる", () => {
+      const entry = pokemonById.get(toDataId("Garchomp"))!;
+      expect(entry.otherFormes).toEqual(["Garchomp-Mega", "Garchomp-Mega-Z"]);
+    });
+
+    it("アブソルの otherFormes が非 Z メガを先頭にした 2 件になる", () => {
+      const entry = pokemonById.get(toDataId("Absol"))!;
+      expect(entry.otherFormes).toEqual(["Absol-Mega", "Absol-Mega-Z"]);
+    });
+
+    it("メガルカリオZ が半角 Z の日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("メガルカリオZ");
+      expect(englishName).toBe("Lucario-Mega-Z");
+    });
+  });
+
   describe("英語名での情報取得", () => {
     it("英語名からポケモン情報が取得できる", () => {
       const inputName = "Garchomp";

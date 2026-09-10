@@ -294,6 +294,55 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
   });
 });
 
+describe("DamageCalculatorAdapter weight-dependent moves", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  // @smogon/calc は重さ依存技の威力を description に "(<BP> BP) " 形式で出す (desc.ts)。
+  // 威力区分: 200kg以上=120 / 100kg以上=100 / 50kg以上=80 / 25kg以上=60 / 10kg以上=40 / 未満=20
+
+  it("ガブリアス (95kg) へのくさむすびは 80 BP で計算される", () => {
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ガブリアス" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(80 BP");
+  });
+
+  it("メガルカリオZ (49.4kg) へのくさむすびは 60 BP で計算される", () => {
+    // weightkg が 0 のままだと重さ区分の最低威力 (20 BP) で計算されてしまう。
+    // pokemon.json の weightkg (49.4) が overrides で正しく注入されていることの確認。
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(60 BP");
+  });
+
+  it("ギルガルド(ブレードフォルム) (53kg) へのくさむすびは 80 BP で計算される", () => {
+    // weightkg=0 から実値へ修正した既存 5 件のうちの回帰確認。
+    const result = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "ギルガルド(ブレードフォルム)" },
+      moveName: "くさむすび",
+    });
+
+    expect(result.description).toContain("(80 BP");
+  });
+});
+
 describe("DamageCalculatorAdapter.calculateAllMoves", () => {
   const adapter = new DamageCalculatorAdapter(
     {
@@ -440,5 +489,45 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
 
     expect(pDefault.ability).toBe("Blaze");
     expect(pSolarPower.ability).toBe("Solar Power");
+  });
+});
+
+describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
+  const adapter = new DamageCalculatorAdapter(
+    {
+      pokemon: pokemonNameResolver,
+      move: moveNameResolver,
+      ability: abilityNameResolver,
+      item: itemNameResolver,
+      nature: natureNameResolver,
+    },
+    pokemonEntryProvider,
+  );
+
+  // このテストが落ちたら calc が Aura Guard を実装した合図。
+  // README と instructions.ts の注記を見直してからテストを更新する。
+  it("メガルカリオZ の Aura Guard は接触物理技のダメージを軽減しない", () => {
+    // はどうのぼうご (Aura Guard) は「接触技のダメージ半減」効果を持つが、
+    // @smogon/calc Gen 0 は本特性を未実装。ものひろい (Pickup) は champions.ts の
+    // 特性処理に一切登場せず、かつ持ち物を持たせていないためこの計算に無関係な
+    // 特性であり、比較対象として使う。
+    // フレアドライブ (接触・Fire) を選んだのは Fighting/Steel 複合の
+    // メガルカリオZ に等倍以上が確実に入り、ダメージ 0 ロールによる
+    // kochance() の内部エラーを避けるため。
+    const withAuraGuard = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ" },
+      moveName: "フレアドライブ",
+    });
+
+    const withUnrelatedAbility = adapter.calculate({
+      attacker: { name: "リザードン" },
+      defender: { name: "メガルカリオZ", ability: "ものひろい" },
+      moveName: "フレアドライブ",
+    });
+
+    expect(withAuraGuard.min).toBeGreaterThan(0);
+    expect(withAuraGuard.min).toBe(withUnrelatedAbility.min);
+    expect(withAuraGuard.max).toBe(withUnrelatedAbility.max);
   });
 });

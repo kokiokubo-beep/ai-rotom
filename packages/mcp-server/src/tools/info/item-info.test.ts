@@ -43,6 +43,34 @@ describe("get_item_info logic", () => {
     });
   });
 
+  describe("Z メガストーン 3 件", () => {
+    it("ルカリオナイトＺ の megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Lucarionite Z"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Lucario-Mega-Z");
+      expect(entry!.megaEvolves).toBe("Lucario");
+    });
+
+    it("ガブリアスナイトＺ の megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Garchompite Z"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Garchomp-Mega-Z");
+      expect(entry!.megaEvolves).toBe("Garchomp");
+    });
+
+    it("アブソルナイトＺ の megaStone / megaEvolves が取得できる", () => {
+      const entry = itemsById.get(toDataId("Absolite Z"));
+      expect(entry).toBeDefined();
+      expect(entry!.megaStone).toBe("Absol-Mega-Z");
+      expect(entry!.megaEvolves).toBe("Absol");
+    });
+
+    it("ルカリオナイトＺ が全角 Ｚ の日本語名で解決できる", () => {
+      const englishName = itemNameResolver.toEnglish("ルカリオナイトＺ");
+      expect(englishName).toBe("Lucarionite Z");
+    });
+  });
+
   describe("存在しない持ち物", () => {
     it("toEnglish で存在しない日本語名は undefined を返す", () => {
       const result = itemNameResolver.toEnglish("ないアイテム");

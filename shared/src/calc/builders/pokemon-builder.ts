@@ -32,6 +32,8 @@ function toSmogonBoosts(
  * PokemonEntry から @smogon/calc の overrides オプション用オブジェクトを作る。
  * @smogon/calc の Specie 型は types を文字列 union のタプル ([TypeName] | [TypeName, TypeName]) として
  * 厳密に定義しているが、PokemonEntry 側は string[] で保持するため、呼び出し側でキャストする。
+ * weightkg は @smogon/calc Gen 0 に存在しない species だと undefined になり、重さ依存技が
+ * エラーにならず最低威力で計算されてしまうため、常に pokemon.json の値を注入する。
  */
 function buildSpeciesOverrides(
   entry: PokemonEntry,
@@ -39,10 +41,12 @@ function buildSpeciesOverrides(
   // @smogon/calc の Specie.types / baseStats に相当する形へキャストを委ねるため unknown にする
   types: unknown;
   baseStats: PokemonEntry["baseStats"];
+  weightkg: PokemonEntry["weightkg"];
 } {
   return {
     types: entry.types,
     baseStats: entry.baseStats,
+    weightkg: entry.weightkg,
   };
 }
 
@@ -50,7 +54,7 @@ function buildSpeciesOverrides(
  * PokemonInput から @smogon/calc の Pokemon コンストラクタに渡す options を組み立てる。
  *
  * pokemonEntry が与えられた場合は以下の動作:
- *   - baseStats / types を overrides で上書き（修正済み種族値・タイプを反映）
+ *   - baseStats / types / weightkg を overrides で上書き（修正済み種族値・タイプ・重さを反映）
  *   - ability が未指定なら pokemonEntry の 1 番目の特性（通常特性）をデフォルトに設定
  * pokemonEntry が undefined の場合は override 無し（@smogon/calc の内蔵データで動作）。
  *
