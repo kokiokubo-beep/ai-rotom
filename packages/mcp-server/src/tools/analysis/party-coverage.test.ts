@@ -752,4 +752,12 @@ describe("analyze_party_coverage logic", () => {
       );
     });
   });
+
+  describe("learnset 追補後の攻撃タイプ", () => {
+    it("技未指定のエースバーン単体で attackingTypes が空にならない", () => {
+      const out = analyzePartyCoverage({ myParty: [{ name: "エースバーン" }] });
+      expect(out.attackingTypes.length).toBeGreaterThan(0);
+      expect(out.attackingTypes.some((t) => t.type === "Fire")).toBe(true);
+    });
+  });
 });

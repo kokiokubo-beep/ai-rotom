@@ -7,6 +7,7 @@ import {
   pokemonById,
   toDataId,
 } from "../../data-store";
+import { hasAttackingMoveOfType } from "./search-by-type-effectiveness";
 
 const CHAMPIONS_GEN_NUM = 0;
 
@@ -142,6 +143,12 @@ describe("search_pokemon_by_type_effectiveness logic", () => {
       expect(amagoi).toBeDefined();
       expect(amagoi!.category).toBe("Status");
       expect(amagoi!.type).toBe("Water");
+    });
+  });
+
+  describe("learnset 追補後の hasAttackingType", () => {
+    it("エースバーンが Fire の攻撃技持ちとして判定される", () => {
+      expect(hasAttackingMoveOfType(toDataId("Cinderace"), "Fire")).toBe(true);
     });
   });
 
