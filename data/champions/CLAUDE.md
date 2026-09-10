@@ -60,6 +60,9 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
 - `moves.json` に技を追加するときは `@smogon/calc` Gen 0 の技リストに存在するか
   必ず確認する。Gen 0 に無い技はダメージ計算が例外にならず **0 ダメージを黙って返す**
   （species と違い move overrides はアダプタ未配線のため）
+- `items.json` に持ち物を追加するときも `@smogon/calc` Gen 0 の持ち物リストに存在するか
+  必ず確認する。Gen 0 に無い持ち物は、防御側に持たせるとダメージ計算が
+  持ち物の種類を問わず TypeError で落ちる
 
 ## 仕様差分の取り扱い
 

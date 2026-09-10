@@ -2,7 +2,6 @@ import { calculate, Generations, Pokemon, Move } from "@smogon/calc";
 import type { TypeName } from "@smogon/calc/dist/data/interface";
 import { NameResolver } from "../utils/name-resolver.js";
 import type { PokemonEntryProvider } from "../types/pokemon.js";
-import type { CalcItemProvider } from "../types/item.js";
 import { calculateTypeEffectiveness } from "../analysis/type-matchup.js";
 import {
   NON_STAB_MULTIPLIER,
@@ -15,7 +14,6 @@ import {
 import { buildPokemonOptions } from "./builders/pokemon-builder.js";
 import { buildField } from "./builders/field-builder.js";
 import { flattenDamage, toPercent } from "./formatters/result-formatter.js";
-import { createChampionsGen } from "./champions-gen.js";
 import type {
   AllMovesCalcInput,
   DamageCalcInput,
@@ -23,6 +21,7 @@ import type {
   PokemonInput,
 } from "./types.js";
 
+const CHAMPIONS_GEN_NUM = 0;
 const DEFAULT_NATURE_EN = "Serious";
 
 interface TypeMetrics {
@@ -76,21 +75,15 @@ export interface NameResolvers {
  *   - formatters/result-formatter: ダメージ結果の整形（flatten・%変換）
  *
  * このクラスは data-store 等の具体実装に直接依存せず、
- * 必要なデータは resolvers・entryProvider・itemProvider を通じて注入される。
+ * 必要なデータは resolvers・entryProvider を通じて注入される。
  */
 export class DamageCalculatorAdapter {
   private readonly resolvers: NameResolvers;
   private readonly entryProvider: PokemonEntryProvider;
-  private readonly gen: ReturnType<typeof Generations.get>;
 
-  constructor(
-    resolvers: NameResolvers,
-    entryProvider: PokemonEntryProvider,
-    itemProvider: CalcItemProvider,
-  ) {
+  constructor(resolvers: NameResolvers, entryProvider: PokemonEntryProvider) {
     this.resolvers = resolvers;
     this.entryProvider = entryProvider;
-    this.gen = createChampionsGen(itemProvider);
   }
 
   calculate(input: DamageCalcInput): DamageCalcResult {
@@ -362,7 +355,7 @@ export class DamageCalculatorAdapter {
   }
 
   getGen(): ReturnType<typeof Generations.get> {
-    return this.gen;
+    return Generations.get(CHAMPIONS_GEN_NUM);
   }
 
   get pokemonResolver(): NameResolver {

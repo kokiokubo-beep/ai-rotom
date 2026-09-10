@@ -10,9 +10,9 @@ monorepo root の `devDependencies` から `file:vendor/...` で参照する。
 | Package | `@smogon/calc` |
 | Version | `0.11.0` |
 | Upstream | https://github.com/smogon/damage-calc |
-| Upstream commit SHA | `e7e74f3036c9793813e197e28d54cc857ae7e8dd` (2026-08-10 UTC, master HEAD 時点) |
+| Upstream commit SHA | `06cc6116714a2dd92cc2fdcee3052bcecf8eb714` (2026-09-09 UTC, master HEAD 時点) |
 | License | MIT (詳細は `packages/mcp-server/THIRD_PARTY_LICENSES.md`) |
-| Integrity (sha512) | `sha512-W23VZ88MaXP+1o62gTqJUaNFw7n4ka0YmdVk32fuqSoDb+X+5SwWrOkHWc9Bn5QiO8LNtd/P9/3aD5MUVP8zXg==` |
+| Integrity (sha512) | `sha512-+3ieDTgZuRTCLNsLsyUQtGy5n6sbrpdy2Svwk7Ry+0X3cdMYpNqjZmBNEudt5DwvLEm83LgeCoCp2Luj51Lhcg==` |
 
 ### バージョン番号について
 
@@ -63,7 +63,7 @@ commit しているので、`npm ci` なら toolchain が固定されて tarball
 printf 'sha512-'; openssl dgst -sha512 -binary vendor/smogon-calc-0.11.0.tgz | openssl base64 -A
 ```
 
-現在の記録値は npm 11.16.0 / Node 26.3.1 で再現を確認したもの。
+現在の記録値は npm 11.19.0 / Node 26.7.0 で再現を確認したもの。
 
 ### 差し替え時のレビューチェックリスト
 
