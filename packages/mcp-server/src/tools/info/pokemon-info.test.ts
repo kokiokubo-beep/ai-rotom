@@ -129,6 +129,44 @@ describe("get_pokemon_info", () => {
     });
   });
 
+  describe("ゴリランダー・セグレイブ", () => {
+    it("ゴリランダー の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Rillaboom"))!;
+      expect(entry.types).toEqual(["Grass"]);
+      expect(entry.baseStats.hp).toBe(100);
+      expect(entry.baseStats.atk).toBe(125);
+      expect(entry.baseStats.def).toBe(90);
+      expect(entry.baseStats.spa).toBe(60);
+      expect(entry.baseStats.spd).toBe(70);
+      expect(entry.baseStats.spe).toBe(85);
+      expect(entry.abilities).toEqual(["Overgrow", "Grassy Surge"]);
+      expect(entry.weightkg).toBe(90);
+    });
+
+    it("セグレイブ の types / baseStats / abilities / weightkg が取得できる", () => {
+      const entry = pokemonById.get(toDataId("Baxcalibur"))!;
+      expect(entry.types).toEqual(["Dragon", "Ice"]);
+      expect(entry.baseStats.hp).toBe(115);
+      expect(entry.baseStats.atk).toBe(145);
+      expect(entry.baseStats.def).toBe(92);
+      expect(entry.baseStats.spa).toBe(75);
+      expect(entry.baseStats.spd).toBe(86);
+      expect(entry.baseStats.spe).toBe(87);
+      expect(entry.abilities).toEqual(["Thermal Exchange", "Ice Body"]);
+      expect(entry.weightkg).toBe(210);
+    });
+
+    it("ゴリランダー が日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("ゴリランダー");
+      expect(englishName).toBe("Rillaboom");
+    });
+
+    it("セグレイブ が日本語名で解決できる", () => {
+      const englishName = pokemonNameResolver.toEnglish("セグレイブ");
+      expect(englishName).toBe("Baxcalibur");
+    });
+  });
+
   describe("英語名での情報取得", () => {
     it("英語名からポケモン情報が取得できる", () => {
       const inputName = "Garchomp";

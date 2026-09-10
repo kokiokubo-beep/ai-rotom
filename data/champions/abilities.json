@@ -420,6 +420,13 @@
     "shortDesc": "Pokemon making contact with this Pokemon have their Speed lowered by 1 stage."
   },
   {
+    "id": "grassysurge",
+    "name": "Grassy Surge",
+    "nameJa": "グラスメイカー",
+    "desc": "On switch-in, this Pokemon summons Grassy Terrain.",
+    "shortDesc": "On switch-in, starts Grassy Terrain."
+  },
+  {
     "id": "guts",
     "name": "Guts",
     "nameJa": "こんじょう",
@@ -1405,6 +1412,13 @@
     "nameJa": "テレパシー",
     "desc": "This Pokemon does not take damage from attacks made by its allies.",
     "shortDesc": "This Pokemon does not take damage from attacks made by its allies."
+  },
+  {
+    "id": "thermalexchange",
+    "name": "Thermal Exchange",
+    "nameJa": "ねつこうかん",
+    "desc": "This Pokemon raises its Attack by 1 stage when hit by a Fire-type move. This Pokemon cannot be burned. Gaining this Ability while burned cures it.",
+    "shortDesc": "This Pokemon's Attack is raised 1 stage if hit by a Fire move; burn immunity."
   },
   {
     "id": "thickfat",

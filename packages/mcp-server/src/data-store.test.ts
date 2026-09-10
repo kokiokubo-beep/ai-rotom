@@ -61,6 +61,17 @@ describe("マスターデータの不変条件", () => {
 
       expect(invalidRefs).toEqual([]);
     });
+
+    it("abilities の参照先が abilities.json に実在する", () => {
+      const abilityNames = new Set(championsAbilities.map((a) => a.name));
+      const invalidRefs = championsPokemon.flatMap((p) =>
+        p.abilities
+          .filter((ability) => !abilityNames.has(ability))
+          .map((ability) => ({ id: p.id, ability })),
+      );
+
+      expect(invalidRefs).toEqual([]);
+    });
   });
 
   describe("items.json のメガストーン参照", () => {
@@ -127,6 +138,21 @@ describe("マスターデータの不変条件", () => {
       );
 
       expect(invalidRefs).toEqual([]);
+    });
+  });
+
+  describe("learnsets が未整備のベースフォーム", () => {
+    it("learnsets にキーが無いベースフォームは既知の 2 体に限定される", () => {
+      const learnsetKeys = new Set(Object.keys(championsLearnsets));
+      const missingLearnsetBaseIds = championsPokemon
+        .filter((p) => p.baseSpecies === null && !learnsetKeys.has(p.id))
+        .map((p) => p.id)
+        .sort();
+
+      // ゴリランダー・セグレイブはポケチャン版の習得技データが未公表のため、
+      // learnset キーを意図的に持たない。追補完了後はこのテストを削除せず、
+      // 期待値を空配列（toEqual([])）に反転して「全ベースフォームが learnset を持つ」恒久不変条件として残す。
+      expect(missingLearnsetBaseIds).toEqual(["baxcalibur", "rillaboom"]);
     });
   });
 });

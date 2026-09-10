@@ -12,8 +12,8 @@
 
 | ファイル | 役割 | 件数目安 |
 |---|---|---|
-| `pokemon.json` | ポケモン (種族値・タイプ・特性・重さ) | 326 |
-| `abilities.json` | 特性 (英日名 + 効果説明) | 221 |
+| `pokemon.json` | ポケモン (種族値・タイプ・特性・重さ) | 328 |
+| `abilities.json` | 特性 (英日名 + 効果説明) | 223 |
 | `items.json` | 持ち物 (メガストーン情報含む) | 151 |
 | `moves.json` | 技 (威力・命中・PP・タイプ・フラグ等) | 527 |
 | `learnsets.json` | ポケモン ID → 技 ID 配列 | 233 species |
@@ -45,6 +45,7 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
 - **重複禁止**: 同一 id は 1 エントリのみ
 - **相互参照の整合性**:
   - `pokemon.baseSpecies` / `pokemon.otherFormes` → `pokemon.json` に対応エントリが存在
+  - `pokemon.abilities` → `abilities.json` に対応エントリが存在
   - `items.megaStone` / `items.megaEvolves` → `pokemon.json` に対応エントリが存在
   - `learnsets` のキー → `pokemon.json` の id に存在
   - `learnsets` の技 ID → `moves.json` に存在
@@ -55,6 +56,9 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
   `pokemon.json` から削除する（攻略サイトの粒度に揃える）
 - 攻略サイトのデータを正として訂正する場合は、scripts の再生成ではなく
   **直接 JSON を編集**する（scripts は削除済み）
+- `moves.json` に技を追加するときは `@smogon/calc` Gen 0 の技リストに存在するか
+  必ず確認する。Gen 0 に無い技はダメージ計算が例外にならず **0 ダメージを黙って返す**
+  （species と違い move overrides はアダプタ未配線のため）
 
 ## 仕様差分の取り扱い
 
