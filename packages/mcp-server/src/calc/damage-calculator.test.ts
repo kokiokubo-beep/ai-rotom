@@ -627,7 +627,7 @@ describe("DamageCalculatorAdapter いかく (Intimidate) の未反映を固定",
   });
 });
 
-describe("DamageCalculatorAdapter 計算エンジン内蔵リストに無い持ち物 (メガストーン) を持つ防御側の計算", () => {
+describe("DamageCalculatorAdapter メガストーンを持つ防御側の計算", () => {
   it("防御側がメガストーンを持っていても計算が例外を投げない", () => {
     expect(() =>
       damageCalculator.calculate({

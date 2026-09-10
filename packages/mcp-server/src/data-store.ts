@@ -2,7 +2,6 @@ import type {
   BaseStats,
   PokemonEntry,
   PokemonEntryProvider,
-  CalcItemProvider,
 } from "@ai-rotom/shared";
 import abilitiesData from "@data/abilities.json";
 import itemsData from "@data/items.json";
@@ -180,24 +179,6 @@ export function toDataId(name: string): string {
 export const pokemonEntryProvider: PokemonEntryProvider = {
   getByName: (name: string): PokemonEntry | undefined =>
     pokemonById.get(toDataId(name)),
-};
-
-/**
- * calc の Champions 内蔵リストに無い持ち物を items.json 側から補うための
- * CalcItemProvider 実装。
- */
-export const calcItemProvider: CalcItemProvider = {
-  getById: (id: string) => {
-    const entry = itemsById.get(id);
-    if (entry === undefined) return undefined;
-    return {
-      name: entry.name,
-      megaStone:
-        entry.megaStone !== null && entry.megaEvolves !== null
-          ? { [entry.megaEvolves]: entry.megaStone }
-          : null,
-    };
-  },
 };
 
 /**
