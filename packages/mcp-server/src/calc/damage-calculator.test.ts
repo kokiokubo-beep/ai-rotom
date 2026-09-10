@@ -89,29 +89,6 @@ describe("@smogon/calc Champions integration", () => {
   });
 });
 
-const SPECIES_ABSENT_FROM_GEN0 = [
-  "Rillaboom",
-  "Baxcalibur",
-  "Baxcalibur-Mega",
-  "Salamence",
-  "Salamence-Mega",
-  "Golisopod",
-  "Golisopod-Mega",
-] as const;
-
-describe("@smogon/calc gen0 に収録されていない新規種族", () => {
-  const gen = Generations.get(CHAMPIONS_GEN_NUM);
-
-  it("ポケチャン追加種は gen0 の内蔵種族データに存在しない", () => {
-    // 下記の種が gen0 に無いことを前提に、overrides 以外にデータ供給元が
-    // 無いことを論証しているテストがある（重さ依存技の BP 判定など）。
-    // 落ちたら vendored calc が該当種を収録した合図なので、関連テストを見直す。
-    for (const name of SPECIES_ABSENT_FROM_GEN0) {
-      expect(gen.species.get(toID(name))).toBeUndefined();
-    }
-  });
-});
-
 describe("DamageCalculatorAdapter", () => {
   it("should calculate damage with Japanese names", () => {
     const result = damageCalculator.calculate({
@@ -288,9 +265,6 @@ describe("DamageCalculatorAdapter damage with pokemon.json overrides", () => {
   });
 
   it("セグレイブのつららおとしはゴリランダーに効果抜群になる", () => {
-    // @smogon/calc Gen 0 に Rillaboom species は存在しないため、defender.types は
-    // pokemon.json の overrides（Grass 単タイプ）のみから決まる。
-    // つららおとし (Ice) × Grass 単タイプ = 2 倍であることが types 注入の証明になる。
     const result = damageCalculator.calculate({
       attacker: { name: "セグレイブ" },
       defender: { name: "ゴリランダー" },
@@ -316,8 +290,6 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
   });
 
   it("メガルカリオZ (49.4kg) へのくさむすびは 60 BP で計算される", () => {
-    // weightkg が 0 のままだと重さ区分の最低威力 (20 BP) で計算されてしまう。
-    // pokemon.json の weightkg (49.4) が overrides で正しく注入されていることの確認。
     const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "メガルカリオZ" },
@@ -328,7 +300,6 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
   });
 
   it("ギルガルド(ブレードフォルム) (53kg) へのくさむすびは 80 BP で計算される", () => {
-    // weightkg=0 から実値へ修正した既存 5 件のうちの回帰確認。
     const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "ギルガルド(ブレードフォルム)" },
@@ -339,9 +310,6 @@ describe("DamageCalculatorAdapter weight-dependent moves", () => {
   });
 
   it("セグレイブ (210kg) へのくさむすびは 120 BP で計算される", () => {
-    // @smogon/calc Gen 0 に Baxcalibur species は存在しないため、weightkg は
-    // pokemon.json の overrides 以外に注入元が無い。この計算が成立すること自体が
-    // overrides 経由のデータ供給が唯一のデータ源であることの証明になる。
     const result = damageCalculator.calculate({
       attacker: { name: "リザードン" },
       defender: { name: "セグレイブ" },
@@ -521,14 +489,10 @@ describe("DamageCalculatorAdapter.createPokemonObject", () => {
   });
 });
 
-describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
-  // このテストが落ちたら calc が Aura Guard を実装した合図。
-  // README と instructions.ts の注記を見直してからテストを更新する。
-  it("メガルカリオZ の Aura Guard は接触物理技のダメージを軽減しない", () => {
-    // はどうのぼうご (Aura Guard) は「接触技のダメージ半減」効果を持つが、
-    // @smogon/calc Gen 0 は本特性を未実装。ものひろい (Pickup) は champions.ts の
-    // 特性処理に一切登場せず、かつ持ち物を持たせていないためこの計算に無関係な
-    // 特性であり、比較対象として使う。
+describe("DamageCalculatorAdapter はどうのぼうご (Aura Guard) の接触技半減", () => {
+  it("メガルカリオZ の Aura Guard は接触物理技のダメージを半減する", () => {
+    // ものひろい (Pickup) は champions.ts の特性処理に一切登場せず、かつ持ち物を
+    // 持たせていないためこの計算に無関係な特性であり、比較対象として使う。
     // フレアドライブ (接触・Fire) を選んだのは Fighting/Steel 複合の
     // メガルカリオZ に等倍以上が確実に入り、ダメージ 0 ロールによる
     // kochance() の内部エラーを避けるため。
@@ -544,9 +508,9 @@ describe("DamageCalculatorAdapter Aura Guard の未反映を固定", () => {
       moveName: "フレアドライブ",
     });
 
-    expect(withAuraGuard.min).toBeGreaterThan(0);
-    expect(withAuraGuard.min).toBe(withUnrelatedAbility.min);
-    expect(withAuraGuard.max).toBe(withUnrelatedAbility.max);
+    const AURA_GUARD_MULTIPLIER = 0.5;
+    expect(withAuraGuard.min).toBe(withUnrelatedAbility.min * AURA_GUARD_MULTIPLIER);
+    expect(withAuraGuard.max).toBe(withUnrelatedAbility.max * AURA_GUARD_MULTIPLIER);
   });
 });
 
@@ -713,50 +677,48 @@ describe("DamageCalculatorAdapter リベロ (Libero) の STAB 判定", () => {
   });
 });
 
-describe("DamageCalculatorAdapter ふうせん (Air Balloon) の非接地反映確認", () => {
-  it("ふうせん所持でグラスフィールドのじしん半減が外れる", () => {
-    // グラスフィールドは接地している防御側へのじしんを半減する。ふうせんで非接地になると
-    // 半減が外れるため、この差分は防御側の持ち物が計算エンジンまで届いていることの証明になる。
-    const withoutTerrain = damageCalculator.calculate({
+describe("DamageCalculatorAdapter ふうせん (Air Balloon) のじめん技無効", () => {
+  it("ふうせん所持の防御側には calculateAllMoves の結果からじめん技が消える", () => {
+    const withoutBalloon = damageCalculator.calculateAllMoves({
       attacker: { name: "ガブリアス" },
       defender: { name: "カビゴン" },
-      moveName: "じしん",
     });
-
-    const withTerrain = damageCalculator.calculate({
-      attacker: { name: "ガブリアス" },
-      defender: { name: "カビゴン" },
-      moveName: "じしん",
-      conditions: { terrain: "Grassy" },
-    });
-
-    const withTerrainAndBalloon = damageCalculator.calculate({
+    const withBalloon = damageCalculator.calculateAllMoves({
       attacker: { name: "ガブリアス" },
       defender: { name: "カビゴン", item: "ふうせん" },
-      moveName: "じしん",
-      conditions: { terrain: "Grassy" },
     });
 
-    expect(withTerrain.max).toBeLessThan(withoutTerrain.max);
-    expect(withTerrainAndBalloon.max).toBe(withoutTerrain.max);
+    expect(withoutBalloon.some((r) => r.moveType === "Ground")).toBe(true);
+    expect(withBalloon.some((r) => r.moveType === "Ground")).toBe(false);
   });
 
-  it("ふうせんのじめん技無効はダメージ計算に反映されない", () => {
-    // 落ちたら計算エンジンがふうせんの無効化を実装した合図。
-    // README と instructions.ts の注記を見直してからテストを更新する。
-    const withoutTerrain = damageCalculator.calculate({
+  it("ふうせんはじめん以外の技のダメージを変えない", () => {
+    const withoutBalloon = damageCalculator.calculate({
       attacker: { name: "ガブリアス" },
       defender: { name: "カビゴン" },
-      moveName: "じしん",
+      moveName: "げきりん",
     });
-
-    const withTerrainAndBalloon = damageCalculator.calculate({
+    const withBalloon = damageCalculator.calculate({
       attacker: { name: "ガブリアス" },
       defender: { name: "カビゴン", item: "ふうせん" },
-      moveName: "じしん",
-      conditions: { terrain: "Grassy" },
+      moveName: "げきりん",
     });
 
-    expect(withTerrainAndBalloon.min).toBe(withoutTerrain.min);
+    expect(withBalloon.min).toBe(withoutBalloon.min);
+    expect(withBalloon.max).toBe(withoutBalloon.max);
+  });
+
+  it("ふうせん所持の防御側へのじしんは単発計算が例外になる", () => {
+    // 全ロール 0 のとき kochance() が例外を投げる。タイプ無効の場合と同じ経路で、
+    // calculateAllMoves 側は max <= 0 で技ごと除外されるためここだけ挙動が分かれる。
+    const earthquake = (item?: string) => () =>
+      damageCalculator.calculate({
+        attacker: { name: "ガブリアス" },
+        defender: { name: "カビゴン", item },
+        moveName: "じしん",
+      });
+
+    expect(earthquake()).not.toThrow();
+    expect(earthquake("ふうせん")).toThrow();
   });
 });
