@@ -50,6 +50,7 @@ describe("SERVER_INSTRUCTIONS", () => {
     // learnset 欠落を「技を覚えない」と誤読させない意図の注記を固定化する。
     expect(SERVER_INSTRUCTIONS).toContain("未整備");
     expect(SERVER_INSTRUCTIONS).toContain("learnableMoveCount");
+    expect(SERVER_INSTRUCTIONS).toContain("メガシンカ後");
   });
 
   it("declares the session-wide scope as Pokemon Champions", () => {
