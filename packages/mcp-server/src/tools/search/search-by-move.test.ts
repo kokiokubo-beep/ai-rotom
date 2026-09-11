@@ -61,6 +61,39 @@ describe("search_pokemon_by_move logic", () => {
       expect(sorted[0]).toBe("Abomasnow");
       expect(sorted[sorted.length - 1]).toBe("Zygarde");
     });
+
+    it("かえんボールを覚えるポケモン一覧に Cinderace が含まれる", () => {
+      const moveEn = moveNameResolver.toEnglish("かえんボール");
+      expect(moveEn).toBe("Pyro Ball");
+
+      const moveId = toDataId(moveEn!);
+      const matched: string[] = [];
+      for (const [pokemonId, moveIds] of Object.entries(championsLearnsets)) {
+        if (moveIds.includes(moveId)) {
+          const entry = pokemonById.get(pokemonId);
+          if (entry !== undefined) {
+            matched.push(entry.name);
+          }
+        }
+      }
+
+      expect(matched).toContain("Cinderace");
+    });
+
+    it("つるぎのまいを覚えるポケモン一覧に追加ポケモン（Cinderace）が含まれる", () => {
+      const moveId = toDataId("Swords Dance");
+      const matched: string[] = [];
+      for (const [pokemonId, moveIds] of Object.entries(championsLearnsets)) {
+        if (moveIds.includes(moveId)) {
+          const entry = pokemonById.get(pokemonId);
+          if (entry !== undefined) {
+            matched.push(entry.name);
+          }
+        }
+      }
+
+      expect(matched).toContain("Cinderace");
+    });
   });
 
   describe("エラー系", () => {

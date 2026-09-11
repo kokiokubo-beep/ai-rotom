@@ -67,4 +67,37 @@ describe("get_move_info logic", () => {
       expect(entry!.basePower).toBeGreaterThan(0);
     });
   });
+
+  describe("追加した専用技 13 件", () => {
+    // 件数が多いため table-driven に統一する
+    it.each([
+      { nameJa: "コートチェンジ", name: "Court Change", type: "Normal", category: "Status", basePower: 0, accuracy: 100, pp: 12 },
+      { nameJa: "でんこうそうげき", name: "Double Shock", type: "Electric", category: "Physical", basePower: 120, accuracy: 100, pp: 8 },
+      { nameJa: "ドラムアタック", name: "Drum Beating", type: "Grass", category: "Physical", basePower: 80, accuracy: 100, pp: 12 },
+      { nameJa: "きょけんとつげき", name: "Glaive Rush", type: "Dragon", category: "Physical", basePower: 120, accuracy: 100, pp: 8 },
+      { nameJa: "くらいつく", name: "Jaw Lock", type: "Dark", category: "Physical", basePower: 80, accuracy: 100, pp: 12 },
+      { nameJa: "たこがため", name: "Octolock", type: "Fighting", category: "Status", basePower: 0, accuracy: 100, pp: 16 },
+      { nameJa: "オーバードライブ", name: "Overdrive", type: "Electric", category: "Special", basePower: 80, accuracy: 100, pp: 12 },
+      { nameJa: "かえんボール", name: "Pyro Ball", type: "Fire", category: "Physical", basePower: 120, accuracy: 90, pp: 8 },
+      { nameJa: "さいきのいのり", name: "Revival Blessing", type: "Normal", category: "Status", basePower: 0, accuracy: true, pp: 1 },
+      { nameJa: "ギアチェンジ", name: "Shift Gear", type: "Steel", category: "Status", basePower: 0, accuracy: true, pp: 12 },
+      { nameJa: "きりさく", name: "Slash", type: "Normal", category: "Physical", basePower: 80, accuracy: 100, pp: 20 },
+      { nameJa: "ねらいうち", name: "Snipe Shot", type: "Water", category: "Special", basePower: 85, accuracy: 100, pp: 16 },
+      { nameJa: "びりびりちくちく", name: "Zing Zap", type: "Electric", category: "Physical", basePower: 80, accuracy: 100, pp: 12 },
+    ])(
+      "$nameJa（$name）が日英双方向で解決でき、type / category / basePower / accuracy / pp が取得できる",
+      ({ nameJa, name, type, category, basePower, accuracy, pp }) => {
+        expect(moveNameResolver.toEnglish(nameJa)).toBe(name);
+        expect(moveNameResolver.toJapanese(name)).toBe(nameJa);
+
+        const entry = movesById.get(toDataId(name));
+        expect(entry).toBeDefined();
+        expect(entry!.type).toBe(type);
+        expect(entry!.category).toBe(category);
+        expect(entry!.basePower).toBe(basePower);
+        expect(entry!.accuracy).toBe(accuracy);
+        expect(entry!.pp).toBe(pp);
+      },
+    );
+  });
 });

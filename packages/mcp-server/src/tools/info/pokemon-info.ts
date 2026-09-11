@@ -148,7 +148,7 @@ interface SearchPokemonResult {
 /**
  * PokemonEntry から PokemonInfoResult を構築する。
  */
-function buildPokemonInfoResult(entry: PokemonEntry): PokemonInfoResult {
+export function buildPokemonInfoResult(entry: PokemonEntry): PokemonInfoResult {
   const abilitiesJa = entry.abilities.map(resolveAbilityNameJa);
   const nameJa = entry.nameJa ?? entry.name;
 

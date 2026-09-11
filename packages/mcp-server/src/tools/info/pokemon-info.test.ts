@@ -9,6 +9,7 @@ import {
   pokemonById,
   toDataId,
 } from "../../data-store";
+import { buildPokemonInfoResult } from "./pokemon-info";
 
 /**
  * pokemon-info.ts のロジックを直接テストする。
@@ -555,6 +556,21 @@ describe("get_pokemon_info", () => {
     it("類似候補が提示される", () => {
       const suggestions = pokemonNameResolver.suggestSimilar("リザード");
       expect(suggestions.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("learnset 追補後の learnableMoveCount", () => {
+    it("追加ポケモンの learnableMoveCount が数値になる", () => {
+      const entry = pokemonById.get(toDataId("Cinderace"))!;
+      const result = buildPokemonInfoResult(entry);
+      expect(result.learnableMoveCount).not.toBeNull();
+      expect(result.learnableMoveCount).toBeGreaterThan(0);
+    });
+
+    it("メガシンカ後のフォルムは learnset を持たないため learnableMoveCount が null のまま", () => {
+      const entry = pokemonById.get(toDataId("Starmie-Mega"))!;
+      const result = buildPokemonInfoResult(entry);
+      expect(result.learnableMoveCount).toBeNull();
     });
   });
 });

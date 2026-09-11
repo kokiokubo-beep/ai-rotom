@@ -10443,5 +10443,257 @@
     ],
     "desc": "Raises the user's Attack and Special Attack by 1 stage.",
     "shortDesc": "Raises the user's Attack and Sp. Atk by 1."
+  },
+  {
+    "id": "courtchange",
+    "name": "Court Change",
+    "nameJa": "コートチェンジ",
+    "type": "Normal",
+    "category": "Status",
+    "basePower": 0,
+    "accuracy": 100,
+    "pp": 12,
+    "priority": 0,
+    "target": "all",
+    "flags": [
+      "metronome",
+      "mirror"
+    ],
+    "desc": "Switches the Mist, Light Screen, Reflect, Spikes, Safeguard, Tailwind, Toxic Spikes, Stealth Rock, Water Pledge, Fire Pledge, Grass Pledge, Sticky Web, Aurora Veil, G-Max Steelsurge, G-Max Cannonade, G-Max Vine Lash, and G-Max Wildfire effects from the user's side to the opposing side and vice versa.",
+    "shortDesc": "Swaps user's field effects with the opposing side."
+  },
+  {
+    "id": "doubleshock",
+    "name": "Double Shock",
+    "nameJa": "でんこうそうげき",
+    "type": "Electric",
+    "category": "Physical",
+    "basePower": 120,
+    "accuracy": 100,
+    "pp": 8,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "contact",
+      "mirror",
+      "protect",
+      "punch"
+    ],
+    "desc": "Fails unless the user is an Electric type. If this move is successful and the user is not Terastallized, the user's Electric type becomes typeless as long as it remains active.",
+    "shortDesc": "User's Electric type: typeless; must be Electric."
+  },
+  {
+    "id": "drumbeating",
+    "name": "Drum Beating",
+    "nameJa": "ドラムアタック",
+    "type": "Grass",
+    "category": "Physical",
+    "basePower": 80,
+    "accuracy": 100,
+    "pp": 12,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "mirror",
+      "protect"
+    ],
+    "desc": "Has a 100% chance to lower the target's Speed by 1 stage.",
+    "shortDesc": "100% chance to lower the target's Speed by 1."
+  },
+  {
+    "id": "glaiverush",
+    "name": "Glaive Rush",
+    "nameJa": "きょけんとつげき",
+    "type": "Dragon",
+    "category": "Physical",
+    "basePower": 120,
+    "accuracy": 100,
+    "pp": 8,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "contact",
+      "metronome",
+      "mirror",
+      "protect"
+    ],
+    "desc": "If this move is successful, moves targeted at the user deal double damage and do not check accuracy until the user's next turn.",
+    "shortDesc": "User takes sure-hit 2x damage until its next turn."
+  },
+  {
+    "id": "jawlock",
+    "name": "Jaw Lock",
+    "nameJa": "くらいつく",
+    "type": "Dark",
+    "category": "Physical",
+    "basePower": 80,
+    "accuracy": 100,
+    "pp": 12,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "bite",
+      "contact",
+      "metronome",
+      "mirror",
+      "protect"
+    ],
+    "desc": "Prevents the user and the target from switching out. The user and the target can still switch out if either of them is holding Shed Shell or uses Baton Pass, Flip Turn, Parting Shot, Teleport, U-turn, or Volt Switch. The effect ends if either the user or the target leaves the field.",
+    "shortDesc": "Prevents both user and target from switching out."
+  },
+  {
+    "id": "octolock",
+    "name": "Octolock",
+    "nameJa": "たこがため",
+    "type": "Fighting",
+    "category": "Status",
+    "basePower": 0,
+    "accuracy": 100,
+    "pp": 16,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "metronome",
+      "mirror",
+      "protect"
+    ],
+    "desc": "Prevents the target from switching out. At the end of each turn during effect, the target's Defense and Special Defense are lowered by 1 stage. The target can still switch out if it is holding Shed Shell or uses Baton Pass, Flip Turn, Parting Shot, Teleport, U-turn, or Volt Switch. The effect ends if either the user or the target leaves the field.",
+    "shortDesc": "Traps target, lowers Def and SpD by 1 each turn."
+  },
+  {
+    "id": "overdrive",
+    "name": "Overdrive",
+    "nameJa": "オーバードライブ",
+    "type": "Electric",
+    "category": "Special",
+    "basePower": 80,
+    "accuracy": 100,
+    "pp": 12,
+    "priority": 0,
+    "target": "allAdjacentFoes",
+    "flags": [
+      "bypasssub",
+      "mirror",
+      "protect",
+      "sound"
+    ],
+    "desc": "No additional effect.",
+    "shortDesc": "No additional effect. Hits foe(s)."
+  },
+  {
+    "id": "pyroball",
+    "name": "Pyro Ball",
+    "nameJa": "かえんボール",
+    "type": "Fire",
+    "category": "Physical",
+    "basePower": 120,
+    "accuracy": 90,
+    "pp": 8,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "bullet",
+      "defrost",
+      "mirror",
+      "protect"
+    ],
+    "desc": "Has a 10% chance to burn the target.",
+    "shortDesc": "10% chance to burn the target. Thaws user."
+  },
+  {
+    "id": "revivalblessing",
+    "name": "Revival Blessing",
+    "nameJa": "さいきのいのり",
+    "type": "Normal",
+    "category": "Status",
+    "basePower": 0,
+    "accuracy": true,
+    "pp": 1,
+    "priority": 0,
+    "target": "self",
+    "flags": [
+      "heal",
+      "nosketch"
+    ],
+    "desc": "A fainted party member is selected and revived with 1/2 its max HP, rounded down. Fails if there are no fainted party members.",
+    "shortDesc": "Revives a fainted Pokemon to 50% HP."
+  },
+  {
+    "id": "shiftgear",
+    "name": "Shift Gear",
+    "nameJa": "ギアチェンジ",
+    "type": "Steel",
+    "category": "Status",
+    "basePower": 0,
+    "accuracy": true,
+    "pp": 12,
+    "priority": 0,
+    "target": "self",
+    "flags": [
+      "metronome",
+      "snatch"
+    ],
+    "desc": "Raises the user's Speed by 2 stages and its Attack by 1 stage.",
+    "shortDesc": "Raises the user's Speed by 2 and Attack by 1."
+  },
+  {
+    "id": "slash",
+    "name": "Slash",
+    "nameJa": "きりさく",
+    "type": "Normal",
+    "category": "Physical",
+    "basePower": 80,
+    "accuracy": 100,
+    "pp": 20,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "contact",
+      "metronome",
+      "mirror",
+      "protect",
+      "slicing"
+    ],
+    "desc": "Has a higher chance for a critical hit.",
+    "shortDesc": "High critical hit ratio."
+  },
+  {
+    "id": "snipeshot",
+    "name": "Snipe Shot",
+    "nameJa": "ねらいうち",
+    "type": "Water",
+    "category": "Special",
+    "basePower": 85,
+    "accuracy": 100,
+    "pp": 16,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "metronome",
+      "mirror",
+      "protect"
+    ],
+    "desc": "Has a higher chance for a critical hit. This move cannot be redirected to a different target by any effect.",
+    "shortDesc": "High critical hit ratio. Cannot be redirected."
+  },
+  {
+    "id": "zingzap",
+    "name": "Zing Zap",
+    "nameJa": "びりびりちくちく",
+    "type": "Electric",
+    "category": "Physical",
+    "basePower": 80,
+    "accuracy": 100,
+    "pp": 12,
+    "priority": 0,
+    "target": "normal",
+    "flags": [
+      "contact",
+      "metronome",
+      "mirror",
+      "protect"
+    ],
+    "desc": "Has a 30% chance to make the target flinch.",
+    "shortDesc": "30% chance to make the target flinch."
   }
 ]

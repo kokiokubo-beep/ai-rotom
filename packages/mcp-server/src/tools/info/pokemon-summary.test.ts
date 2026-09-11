@@ -12,6 +12,7 @@ import {
   abilityNameResolver,
   pokemonNameResolver,
 } from "../../name-resolvers";
+import { buildLearnableMovesProfile } from "./pokemon-summary";
 
 const CHAMPIONS_GEN_NUM = 0;
 
@@ -147,6 +148,22 @@ describe("get_pokemon_summary logic", () => {
       // learnset 中に movesById に未登録な move が混ざっている可能性があるため <= で確認
       expect(physical + special + status).toBeLessThanOrEqual(learnset.length);
       expect(physical + special + status).toBeGreaterThan(0);
+    });
+  });
+
+  describe("learnset 追補後の learnableMoves", () => {
+    it("エースバーンの learnableMoves に Fire の技が含まれる", () => {
+      const typeJaMap = new Map(championsTypes.map((t) => [t.name, t.nameJa]));
+      const profile = buildLearnableMovesProfile(toDataId("Cinderace"), typeJaMap);
+      expect(profile.count).toBeGreaterThan(0);
+      expect(profile.byType.some((t) => t.type === "Fire")).toBe(true);
+    });
+
+    it("メガシンカ後のフォルムは learnset を持たないため count が 0 のまま", () => {
+      const typeJaMap = new Map(championsTypes.map((t) => [t.name, t.nameJa]));
+      const profile = buildLearnableMovesProfile(toDataId("Starmie-Mega"), typeJaMap);
+      expect(profile.count).toBe(0);
+      expect(profile.byType).toHaveLength(0);
     });
   });
 

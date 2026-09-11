@@ -15,8 +15,8 @@
 | `pokemon.json` | ポケモン (種族値・タイプ・特性・重さ) | 358 |
 | `abilities.json` | 特性 (英日名 + 効果説明) | 233 |
 | `items.json` | 持ち物 (メガストーン情報含む) | 166 |
-| `moves.json` | 技 (威力・命中・PP・タイプ・フラグ等) | 527 |
-| `learnsets.json` | ポケモン ID → 技 ID 配列 | 233 species |
+| `moves.json` | 技 (威力・命中・PP・タイプ・フラグ等) | 540 |
+| `learnsets.json` | ポケモン ID → 技 ID 配列 | 259 species |
 | `natures.json` | 性格 (plus / minus) | 25 |
 | `types.json` | タイプの日英マッピング | 18 |
 | `conditions.json` | 天候 / フィールド / 状態異常 / 壁 | 4 カテゴリ |
@@ -50,6 +50,7 @@ mcp-server の `data-store.ts` に定義されている。JSON を編集する�
   - `items.megaStone` / `items.megaEvolves` → `pokemon.json` に対応エントリが存在
   - `learnsets` のキー → `pokemon.json` の id に存在
   - `learnsets` の技 ID → `moves.json` に存在
+- **`moves.json` の追記順**: エントリ追加は末尾に id 昇順のブロックとして追記し、既存行を並び替えない（全体ソートすると差分が膨らむため）
 
 ## `@smogon/calc` との同期
 

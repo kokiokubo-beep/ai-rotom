@@ -200,7 +200,7 @@ function buildDefensesProfile(
  * - byType: 攻撃技（Status 以外）のタイプ別集計
  * - byCategory: 物理 / 特殊 / 変化 の内訳
  */
-function buildLearnableMovesProfile(
+export function buildLearnableMovesProfile(
   pokemonEntryId: string,
   typeJaMap: Map<string, string>,
 ): LearnableMovesProfile {

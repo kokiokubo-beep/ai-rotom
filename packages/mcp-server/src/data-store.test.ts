@@ -141,42 +141,17 @@ describe("マスターデータの不変条件", () => {
     });
   });
 
-  describe("learnsets が未整備のベースフォーム", () => {
-    it("learnsets にキーが無いベースフォームは既知の 23 体に限定される", () => {
+  describe("learnsets の網羅", () => {
+    it("全ベースフォームが learnset を持つ", () => {
       const learnsetKeys = new Set(Object.keys(championsLearnsets));
       const missingLearnsetBaseIds = championsPokemon
         .filter((p) => p.baseSpecies === null && !learnsetKeys.has(p.id))
         .map((p) => p.id)
         .sort();
 
-      // ポケチャン版の習得技データが未公表のベースフォームは learnset キーを意図的に
-      // 持たない。追補完了後はこのテストを削除せず、期待値を空配列（toEqual([])）に反転して
-      // 「全ベースフォームが learnset を持つ」恒久不変条件として残す。
-      expect(missingLearnsetBaseIds).toEqual([
-        "arboliva",
-        "baxcalibur",
-        "cinderace",
-        "farfetchd",
-        "gogoat",
-        "golisopod",
-        "grapploct",
-        "indeedee",
-        "inteleon",
-        "mabosstiff",
-        "mrmime",
-        "pawmot",
-        "perrserker",
-        "persian",
-        "pincurchin",
-        "rillaboom",
-        "salamence",
-        "sirfetchd",
-        "squawkabilly",
-        "swalot",
-        "thievul",
-        "toxtricity",
-        "wigglytuff",
-      ]);
+      // ベースフォームに learnset が無いと分析ツールが全技フォールバックになり、
+      // 覚えない技を最良技として返してしまうため、恒久不変条件として固定する。
+      expect(missingLearnsetBaseIds).toEqual([]);
     });
   });
 });
