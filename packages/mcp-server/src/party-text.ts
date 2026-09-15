@@ -42,8 +42,8 @@ export function parsePokesolTextMultiple(
 
 /**
  * パーサー出力 (`PokesolTextParseReult`) を `PartyMember` に変換する。
- * - `abilityNames[1]` (メガ前特性) が存在すればそれを `ability` として保存
- *   (通常状態の特性が基本。メガ進化時の特性変化は計算側の責務)
+ * - `abilityNames[1..]` (括弧内のメガ前特性) が存在すれば最も元の状態 (末尾) を
+ *   `ability` として保存 (通常状態の特性が基本。メガ進化時の特性変化は計算側の責務)
  * - `natureName` が null の場合は `DEFAULT_NATURE_NAME` で補完
  * - `terastalName` が存在する場合はポケチャン未対応のため無視
  * - `moveNames` が空配列の場合は `moves` フィールド自体を省く
@@ -68,16 +68,15 @@ export function mapPokesolResultToPartyMember(
     member.item = result.itemName;
   }
 
-  const [primaryAbility, preMegaAbility] = result.abilityNames;
-  if (preMegaAbility !== undefined) {
-    member.ability = preMegaAbility;
-    if (primaryAbility !== undefined && primaryAbility !== preMegaAbility) {
+  const { ability, ignoredAbilities } = selectAbility(result.abilityNames);
+  if (ability !== undefined) {
+    member.ability = ability;
+    if (ignoredAbilities.length > 0) {
+      const ignored = ignoredAbilities.map((name) => `「${name}」`).join("");
       warnings.push(
-        `ブロック ${blockNumber}: メガ進化特性「${primaryAbility}」は無視し、メガ前特性「${preMegaAbility}」を ability として保存しました。`,
+        `ブロック ${blockNumber}: メガ進化特性${ignored}は無視し、メガ前特性「${ability}」を ability として保存しました。`,
       );
     }
-  } else if (primaryAbility !== undefined) {
-    member.ability = primaryAbility;
   }
 
   if (result.natureName !== null) {
@@ -109,6 +108,31 @@ export function mapPokesolResultToPartyMember(
   }
 
   return { member, warnings };
+}
+
+/**
+ * パーサー出力の `abilityNames` から `PartyMember.ability` に保存する特性を選ぶ。
+ * `abilityNames` は `[現在の特性, ...括弧内の以前の特性]` の順で、
+ * 特性名が省略された位置 (`特性: (さめはだ)` の先頭など) は null になる。
+ *
+ * - 括弧内に特性があれば、最も元の状態である末尾の特性を採用する
+ * - 括弧内が全て空なら現在の特性を採用する
+ * - 採用しなかった特性 (重複を除く) は ignoredAbilities として返す
+ */
+function selectAbility(abilityNames: PokesolTextParseReult["abilityNames"]): {
+  ability: string | undefined;
+  ignoredAbilities: string[];
+} {
+  const names = abilityNames.filter((name): name is string => name !== null);
+  const [currentAbility, ...previousAbilities] = abilityNames;
+  const ability =
+    previousAbilities.filter((name): name is string => name !== null).at(-1) ??
+    currentAbility ??
+    undefined;
+  const ignoredAbilities = [...new Set(names)].filter(
+    (name) => name !== ability,
+  );
+  return { ability, ignoredAbilities };
 }
 
 /**
