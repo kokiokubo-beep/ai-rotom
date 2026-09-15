@@ -184,6 +184,52 @@ describe("mapPokesolResultToPartyMember", () => {
     expect(warnings.some((w) => w.includes("すなのちから"))).toBe(true);
   });
 
+  it("現在の特性が省略されていても括弧内の特性を ability として保存し warning を記録しない", () => {
+    const result = parsed(
+      `バンギラス @ バンギラスナイト
+特性: (さめはだ)
+能力補正: いじっぱり`,
+    );
+    expect(result.abilityNames).toEqual([null, "さめはだ"]);
+    const { member, warnings } = mapPokesolResultToPartyMember(result, 1);
+    expect(member.ability).toBe("さめはだ");
+    expect(warnings.some((w) => w.includes("特性"))).toBe(false);
+  });
+
+  it("括弧内が空の場合は現在の特性を ability として保存する", () => {
+    const result = parsed(
+      `バンギラス @ バンギラスナイト
+特性: すなのちから()
+能力補正: いじっぱり`,
+    );
+    expect(result.abilityNames).toEqual(["すなのちから", null]);
+    const { member, warnings } = mapPokesolResultToPartyMember(result, 1);
+    expect(member.ability).toBe("すなのちから");
+    expect(warnings.some((w) => w.includes("特性"))).toBe(false);
+  });
+
+  it("括弧内に複数の特性がある場合は末尾 (最も元の状態) を ability として保存する", () => {
+    const result = parsed(
+      `バンギラス @ バンギラスナイト
+特性: すなのちから(いかく)(さめはだ)
+能力補正: いじっぱり`,
+    );
+    const { member, warnings } = mapPokesolResultToPartyMember(result, 1);
+    expect(member.ability).toBe("さめはだ");
+    expect(warnings.some((w) => w.includes("すなのちから"))).toBe(true);
+    expect(warnings.some((w) => w.includes("いかく"))).toBe(true);
+  });
+
+  it("特性が省略された場合は ability を設定しない", () => {
+    const result = parsed(
+      `ガブリアス
+特性:
+能力補正: いじっぱり`,
+    );
+    const { member } = mapPokesolResultToPartyMember(result, 1);
+    expect(member.ability).toBeUndefined();
+  });
+
   it("性格が省略された場合はデフォルトを補完し warning を記録する", () => {
     const result = parsed(
       `ガブリアス
