@@ -108,9 +108,6 @@ npm registry から解決させる。
 - 開発時: mcp-server の `dependencies` から workspace hoist され、
   root `node_modules/` 直下が root の Vitest / tsdown からも解決される
 - publish 時: `dist/index.mjs` は import として残し、利用者が別途 install する
-- `packages/mcp-server/THIRD_PARTY_LICENSES.md` は、publish 物に再配布物として
-  取り込まれる第三者の成果物を再掲するための文書。registry から install される
-  依存はコードを再配布しないのでここに載せない
 
 ### Alias 設定
 
@@ -136,7 +133,7 @@ TS6059 エラーにならないようにしている。
 - bundle しないもの（利用者環境で npm install される）:
   - `@modelcontextprotocol/sdk`, `zod`, `@smogon/calc`,
     `@pokesol/pokesol-text-parser-ts`（npm registry 公開パッケージ）
-- npm publish 時の同梱は `dist` / `LICENSE` / `THIRD_PARTY_LICENSES.md`（`files` フィールド参照）
+- npm publish 時の同梱は `dist` / `LICENSE`（`files` フィールド参照）
 
 ### publish 後のチェックリスト
 

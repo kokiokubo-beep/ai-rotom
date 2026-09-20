@@ -10,8 +10,7 @@
   },
   "files": [
     "dist",
-    "LICENSE",
-    "THIRD_PARTY_LICENSES.md"
+    "LICENSE"
   ],
   "repository": {
     "type": "git",

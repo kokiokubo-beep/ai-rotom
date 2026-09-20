@@ -7,7 +7,7 @@
 #   2. Extract and inspect the tarball's static structure
 #      - package.json must declare every expected runtime dependency
 #      - top-level entries must match the expected shipping list exactly
-#      - LICENSE and THIRD_PARTY_LICENSES.md must be shipped
+#      - LICENSE must be shipped
 #   3. `npm install` the tarball into a fresh scratch project to confirm the
 #      package is installable as-is
 #   4. Start the installed bin to confirm its external dependencies resolve
@@ -42,14 +42,12 @@ readonly EXPECTED_RUNTIME_DEPENDENCIES=(
 readonly EXPECTED_TOP_LEVEL_ENTRIES=(
   'LICENSE'
   'README.md'
-  'THIRD_PARTY_LICENSES.md'
   'dist'
   'package.json'
 )
 
 readonly REQUIRED_LICENSE_FILES=(
   'LICENSE'
-  'THIRD_PARTY_LICENSES.md'
 )
 
 # 起動後この秒数だけ生存していれば、依存解決は通ったと判断する。
@@ -131,7 +129,7 @@ if [[ "${ACTUAL_TOP_LEVEL}" != "${EXPECTED_TOP_LEVEL}" ]]; then
 fi
 echo "  OK: top-level entries are exactly as expected"
 
-echo ">>> Step 5/8: verify LICENSE and THIRD_PARTY_LICENSES.md are shipped"
+echo ">>> Step 5/8: verify LICENSE is shipped"
 for required_file in "${REQUIRED_LICENSE_FILES[@]}"; do
   if [[ ! -f "${PACKAGE_DIR}/${required_file}" ]]; then
     echo "::error::missing required file in published tarball: ${required_file}" >&2

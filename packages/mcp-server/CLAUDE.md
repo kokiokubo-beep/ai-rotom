@@ -53,8 +53,7 @@ MCP レスポンス
 
 ## 配布設定
 
-- `package.json` の `files: ["dist", "LICENSE", "THIRD_PARTY_LICENSES.md"]` で
-  dist とライセンス文書のみ同梱
+- `package.json` の `files: ["dist", "LICENSE"]` で dist と LICENSE のみ同梱
 - `bin: { "ai-rotom": "dist/index.mjs" }`
 - tsdown が JSON を bundle 内にインライン化するので、`data/` の物理同梱は不要
 - 第三者パッケージ（`@modelcontextprotocol/sdk` / `@smogon/calc` / `zod` /
