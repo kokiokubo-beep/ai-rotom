@@ -100,17 +100,17 @@ shared ──→ @smogon/calc (ランタイム), zod
 
 ### publish 物における依存関係
 
-shared コードは `@smogon/calc` をランタイム import するが、mcp-server の
-`package.json.dependencies` に exact pin（例: `"0.12.0"`）で宣言し、
-publish 物にはインライン化しない。利用者環境の `npm install` 時に
-npm registry から解決される。
+publish 物（`dist/index.mjs`）にインライン化するのは自前のコード（`shared/src/*`）と
+データ（`data/champions/*.json`）で、第三者パッケージはすべて mcp-server の
+`package.json.dependencies` に exact pin で宣言し、利用者環境の `npm install` で
+npm registry から解決させる。
 
 - 開発時: mcp-server の `dependencies` から workspace hoist され、
-  root `node_modules/@smogon/calc` が root の Vitest / tsdown からも解決される
+  root `node_modules/` 直下が root の Vitest / tsdown からも解決される
 - publish 時: `dist/index.mjs` は import として残し、利用者が別途 install する
-- `@pokesol/pokesol-text-parser-ts` は引き続き bundle inline 化する
-  （ESM-only / ランタイム依存ゼロのため）
-- `@pokesol` のライセンス義務は `packages/mcp-server/THIRD_PARTY_LICENSES.md` で満たす
+- `packages/mcp-server/THIRD_PARTY_LICENSES.md` は、publish 物に再配布物として
+  取り込まれる第三者の成果物を再掲するための文書。registry から install される
+  依存はコードを再配布しないのでここに載せない
 
 ### Alias 設定
 
@@ -133,9 +133,9 @@ TS6059 エラーにならないようにしている。
 - `dist/index.mjs` にインライン bundle するもの:
   - `data/champions/*.json`（マスターデータ）
   - `shared/src/*`（共有ライブラリ）
-  - `@pokesol/pokesol-text-parser-ts`（ESM-only / ランタイム依存ゼロ。publish 物の `dependencies` に載せない方針で bundle inline）
 - bundle しないもの（利用者環境で npm install される）:
-  - `@modelcontextprotocol/sdk`, `zod`, `@smogon/calc`（npm registry 公開パッケージ）
+  - `@modelcontextprotocol/sdk`, `zod`, `@smogon/calc`,
+    `@pokesol/pokesol-text-parser-ts`（npm registry 公開パッケージ）
 - npm publish 時の同梱は `dist` / `LICENSE` / `THIRD_PARTY_LICENSES.md`（`files` フィールド参照）
 
 ### publish 後のチェックリスト

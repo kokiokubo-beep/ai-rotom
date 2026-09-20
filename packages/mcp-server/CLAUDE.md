@@ -56,16 +56,17 @@ MCP レスポンス
 - `package.json` の `files: ["dist", "LICENSE", "THIRD_PARTY_LICENSES.md"]` で
   dist とライセンス文書のみ同梱
 - `bin: { "ai-rotom": "dist/index.mjs" }`
-- tsdown が JSON と `@pokesol/pokesol-text-parser-ts` を bundle 内にインライン化するので、
-  `data/` の物理同梱は不要
-- `@smogon/calc` は利用者環境で `npm install` される（`dependencies` に宣言。
-  `tsdown.config.ts` の `deps.alwaysBundle` には含めない）
+- tsdown が JSON を bundle 内にインライン化するので、`data/` の物理同梱は不要
+- 第三者パッケージ（`@modelcontextprotocol/sdk` / `@smogon/calc` / `zod` /
+  `@pokesol/pokesol-text-parser-ts`）はすべて利用者環境で `npm install` される
+  （`dependencies` に宣言）
 
 ## パッケージ依存関係
 
 ### Runtime dependencies（publish 物の `dependencies` に載る）
 
 - `@modelcontextprotocol/sdk`: MCP SDK（npm registry から通常インストール）
+- `@pokesol/pokesol-text-parser-ts`: ポケソルテキストのパース。`1.2.0` に exact pin
 - `@smogon/calc`: ダメージ計算エンジン。`0.12.0` に exact pin。root の
   Vitest / tsc からは workspace hoist 先の `node_modules/@smogon/calc` が解決される
 - `zod`: 入力検証（npm registry から通常インストール）
@@ -74,13 +75,11 @@ MCP レスポンス
 
 - `@ai-rotom/shared`: alias 経由で参照するソースディレクトリ
 - `@data/*` (JSON): tsdown が JSON import をインライン化
-- `@pokesol/pokesol-text-parser-ts`: ESM-only / ランタイム依存ゼロのため
-  `tsdown.config.ts` の `deps.alwaysBundle` でインライン化
 
-### テスト実行時の @smogon/calc 解決経路
+### テスト実行時のランタイム依存の解決経路
 
 - 通常の Vitest（`npm test`）: mcp-server の `dependencies` 経由で hoist された
-  `node_modules/@smogon/calc` を解決
+  `node_modules/` を解決
 - dist bundle 検証テスト（`npm run test:dist`）: `dist/index.mjs` を repo 内の
   `node_modules` から起動するため、常に解決に成功する。利用者環境の依存解決は
   ここでは検証できず、`scripts/pack-and-install-smoke.sh` の起動確認でしか
@@ -88,22 +87,20 @@ MCP レスポンス
 
 ## 検証スクリプト
 
-- `scripts/verify-dist-bundle.sh`: `dist/index.mjs` が inline すべきもの
-  （`@pokesol/pokesol-text-parser-ts`）を inline し、external であるべきもの
-  （`@smogon/calc` / `@modelcontextprotocol/sdk` / `zod`）を import として
-  残しているかの双方向検証
+- `scripts/verify-dist-bundle.sh`: dist が runtime dependencies 4 件を import
+  として残しているかの検証。inline される第三者パッケージは無い
 - `scripts/pack-and-install-smoke.sh`: `npm pack` → tarball 展開検査 →
   scratch project への `npm install` → install 物の起動確認までを自動化。
   `ci.yml` の build job と `publish.yml` の両方で実行される
 
-## `@smogon/calc` バージョン更新の手順
+## ランタイム依存のバージョン更新の手順
 
 dependabot が起こす PR をマージし、検証スイート（`npm test` / `npm run build` /
 `bash scripts/verify-dist-bundle.sh` / `npm run test:dist` /
 `bash scripts/pack-and-install-smoke.sh`）を通す。
 
-意図した版上げ以外で `package-lock.json` の `@smogon/calc` の integrity が
-動いたらサプライチェーン事故として扱い、原因が確定するまで merge しない。
+意図した版上げ以外で `package-lock.json` の integrity が動いたらサプライチェーン
+事故として扱い、原因が確定するまで merge しない。
 
 ## 開発コマンド
 
