@@ -15,9 +15,4 @@ export default defineConfig({
   banner: {
     js: "#!/usr/bin/env node",
   },
-  // @pokesol/pokesol-text-parser-ts は ESM-only / ランタイム依存ゼロ。
-  // publish 物の dependencies に含めず dist にインライン化する方針。
-  deps: {
-    alwaysBundle: ["@pokesol/pokesol-text-parser-ts"],
-  },
 });

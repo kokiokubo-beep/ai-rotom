@@ -157,6 +157,7 @@ describe("dist bundle integrity", () => {
   const EXTERNAL_PACKAGES = [
     "@smogon/calc",
     "@modelcontextprotocol/sdk",
+    "@pokesol/pokesol-text-parser-ts",
     "zod",
   ] as const;
 
