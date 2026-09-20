@@ -3,15 +3,21 @@
 # verify-dist-bundle.sh
 #
 # Verify that the built MCP server bundle (packages/mcp-server/dist/index.mjs)
-# does not contain any unbundled references to packages that must be inlined.
+# keeps two invariants around which packages are inlined vs. left as imports.
 #
-# The published tarball does not declare these packages as runtime dependencies,
-# so any residual import/require/dynamic-import would break the published
-# package at runtime. This script fails (exit 1) if such references remain.
+# 1. Packages that must be fully inlined (not declared as runtime dependencies,
+#    so a residual import/require/dynamic-import would break the published
+#    package at runtime):
+#      - @pokesol/pokesol-text-parser-ts    (publish 物の dependencies に含めない方針)
 #
-# Packages that must be fully inlined:
-#   - @smogon/calc                           (npm 未 publish)
-#   - @pokesol/pokesol-text-parser-ts        (publish 物の dependencies に含めない方針)
+# 2. Packages that must remain as external imports (declared as runtime
+#    dependencies; inlining them would duplicate code the user's install
+#    already provides and defeat version pinning):
+#      - @smogon/calc
+#      - @modelcontextprotocol/sdk
+#      - zod
+#
+# This script fails (exit 1) if either invariant is violated.
 #
 # Intended to be invoked from CI (GitHub Actions) as well as locally.
 
@@ -21,8 +27,15 @@ readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly DIST_FILE="${REPO_ROOT}/packages/mcp-server/dist/index.mjs"
 
 readonly INLINED_PACKAGES=(
-  "@smogon/calc"
   "@pokesol/pokesol-text-parser-ts"
+)
+
+# publish 物の dependencies に宣言され、dist では import として残るべきパッケージ。
+# inline されてしまうと利用者環境で重複したコードを抱え、版の固定も効かなくなる。
+readonly EXTERNAL_PACKAGES=(
+  "@smogon/calc"
+  "@modelcontextprotocol/sdk"
+  "zod"
 )
 
 if [[ ! -f "${DIST_FILE}" ]]; then
@@ -50,9 +63,19 @@ for pkg in "${INLINED_PACKAGES[@]}"; do
   done
 done
 
+for pkg in "${EXTERNAL_PACKAGES[@]}"; do
+  pattern_static="from[[:space:]]+[\"'\`]${pkg}(/[^\"'\`]*)?[\"'\`]"
+
+  if ! grep -E -n "${pattern_static}" "${DIST_FILE}" >/dev/null 2>&1; then
+    echo "::error::${pkg} is a runtime dependency but does not appear as an import in ${DIST_FILE}" >&2
+    echo "::error::it was likely inlined; check deps.alwaysBundle in packages/mcp-server/tsdown.config.ts" >&2
+    found_hits=1
+  fi
+done
+
 if [[ "${found_hits}" -ne 0 ]]; then
   exit 1
 fi
 
-echo "OK: no unbundled inlined-package references in ${DIST_FILE}"
+echo "OK: ${DIST_FILE} keeps inlined and external package boundaries as expected"
 exit 0
