@@ -1,9 +1,12 @@
 # Third Party Licenses
 
-Third-party material that is redistributed inside this package's published
-artifact (`dist/index.mjs`) is listed here, together with its license and
-copyright notice.
+This file covers the third-party npm packages this package depends on.
 
-Third-party npm packages are not listed here: they are declared as runtime
-dependencies in `package.json` and installed from the npm registry, so this
-package does not redistribute their code.
+`@modelcontextprotocol/sdk`, `@pokesol/pokesol-text-parser-ts`, `@smogon/calc`
+and `zod` are declared as runtime dependencies in `package.json` and installed
+from the npm registry by the consumer. The published artifact does not contain
+their code, so their license texts are not reproduced here.
+
+`@pokesol/pokesol-text-parser-ts` was previously inlined into `dist/index.mjs`
+and its MIT license text was reproduced here. It is now a runtime dependency,
+so that section was removed.
