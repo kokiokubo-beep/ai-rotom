@@ -5,9 +5,9 @@
 # Validate the publish tarball for @nonz250/ai-rotom:
 #   1. `npm pack` the workspace into a tarball
 #   2. Extract and inspect the tarball's static structure
-#      - package.json must declare @smogon/calc as a runtime dependency
+#      - package.json must declare every expected runtime dependency
 #      - top-level entries must match the expected shipping list exactly
-#      - LICENSE and THIRD_PARTY_LICENSES.md must be shipped
+#      - LICENSE must be shipped
 #   3. `npm install` the tarball into a fresh scratch project to confirm the
 #      package is installable as-is
 #   4. Start the installed bin to confirm its external dependencies resolve
@@ -27,20 +27,27 @@ readonly WORKSPACE_NAME='@nonz250/ai-rotom'
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly EXTRACTED_PACKAGE_SUBDIR='package'
 
+# publish 物の package.json が宣言していなければならないランタイム依存。
+# packages/mcp-server/package.json の dependencies を正として手で追随する。
+readonly EXPECTED_RUNTIME_DEPENDENCIES=(
+  '@modelcontextprotocol/sdk'
+  '@pokesol/pokesol-text-parser-ts'
+  '@smogon/calc'
+  'zod'
+)
+
 # npm は files フィールドに書かれていなくても package.json と README.md を同梱する。
 # そのため files を読んで比較するのではなく、期待する集合を固定で持つ。
 # files を増やしたらここも手で追随する。
 readonly EXPECTED_TOP_LEVEL_ENTRIES=(
   'LICENSE'
   'README.md'
-  'THIRD_PARTY_LICENSES.md'
   'dist'
   'package.json'
 )
 
 readonly REQUIRED_LICENSE_FILES=(
   'LICENSE'
-  'THIRD_PARTY_LICENSES.md'
 )
 
 # 起動後この秒数だけ生存していれば、依存解決は通ったと判断する。
@@ -92,22 +99,22 @@ if [[ ! -d "${PACKAGE_DIR}" ]]; then
 fi
 echo "  OK: extracted to ${PACKAGE_DIR}"
 
-echo ">>> Step 3/8: verify package.json declares @smogon/calc as a runtime dependency"
-HAS_SMOGON_DEP="$(
+echo ">>> Step 3/8: verify package.json declares the expected runtime dependencies"
+MISSING_DEPENDENCIES="$(
   node --input-type=module -e "
     import { readFileSync } from 'node:fs';
-    const pkg = JSON.parse(readFileSync(process.argv[1], 'utf8'));
-    const deps = pkg.dependencies ?? {};
-    process.stdout.write(Object.prototype.hasOwnProperty.call(deps, '@smogon/calc') ? 'yes' : 'no');
-  " "${PACKAGE_DIR}/package.json"
+    const [pkgPath, ...expected] = process.argv.slice(1);
+    const declared = Object.keys(JSON.parse(readFileSync(pkgPath, 'utf8')).dependencies ?? {});
+    process.stdout.write(expected.filter((name) => !declared.includes(name)).join(' '));
+  " "${PACKAGE_DIR}/package.json" "${EXPECTED_RUNTIME_DEPENDENCIES[@]}"
 )"
-readonly HAS_SMOGON_DEP
-if [[ "${HAS_SMOGON_DEP}" != 'yes' ]]; then
-  echo "::error::package.json does not declare @smogon/calc as a runtime dependency" >&2
-  echo "::error::the bundle imports it at runtime, so users would hit ERR_MODULE_NOT_FOUND" >&2
+readonly MISSING_DEPENDENCIES
+if [[ -n "${MISSING_DEPENDENCIES}" ]]; then
+  echo "::error::published package.json does not declare: ${MISSING_DEPENDENCIES}" >&2
+  echo "::error::the bundle imports them at runtime, so users would hit ERR_MODULE_NOT_FOUND" >&2
   exit 1
 fi
-echo "  OK: @smogon/calc is declared as a runtime dependency"
+echo "  OK: all expected runtime dependencies are declared"
 
 echo ">>> Step 4/8: verify top-level entries match the expected shipping list"
 ACTUAL_TOP_LEVEL="$(cd "${PACKAGE_DIR}" && ls -A | LC_ALL=C sort)"
@@ -122,7 +129,7 @@ if [[ "${ACTUAL_TOP_LEVEL}" != "${EXPECTED_TOP_LEVEL}" ]]; then
 fi
 echo "  OK: top-level entries are exactly as expected"
 
-echo ">>> Step 5/8: verify LICENSE and THIRD_PARTY_LICENSES.md are shipped"
+echo ">>> Step 5/8: verify LICENSE is shipped"
 for required_file in "${REQUIRED_LICENSE_FILES[@]}"; do
   if [[ ! -f "${PACKAGE_DIR}/${required_file}" ]]; then
     echo "::error::missing required file in published tarball: ${required_file}" >&2
