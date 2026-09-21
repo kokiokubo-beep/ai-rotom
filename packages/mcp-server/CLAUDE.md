@@ -56,57 +56,54 @@ MCP レスポンス
 - `package.json` の `files: ["dist", "LICENSE", "THIRD_PARTY_LICENSES.md"]` で
   dist とライセンス文書のみ同梱
 - `bin: { "ai-rotom": "dist/index.mjs" }`
-- tsdown が JSON と `@smogon/calc` を bundle 内にインライン化するので、
-  `data/` と `vendor/` の物理同梱は不要
-- `@smogon/calc` は npm 未 publish のため、必ず bundle にインライン化する
-  （`tsdown.config.ts` の `deps.alwaysBundle` で制御）
+- tsdown が JSON と `@pokesol/pokesol-text-parser-ts` を bundle 内にインライン化するので、
+  `data/` の物理同梱は不要
+- `@smogon/calc` は利用者環境で `npm install` される（`dependencies` に宣言。
+  `tsdown.config.ts` の `deps.alwaysBundle` には含めない）
 
 ## パッケージ依存関係
 
 ### Runtime dependencies（publish 物の `dependencies` に載る）
 
 - `@modelcontextprotocol/sdk`: MCP SDK（npm registry から通常インストール）
+- `@smogon/calc`: ダメージ計算エンジン。`0.12.0` に exact pin。root の
+  Vitest / tsc からは workspace hoist 先の `node_modules/@smogon/calc` が解決される
 - `zod`: 入力検証（npm registry から通常インストール）
 
 ### Bundle inline（publish 物にはファイルとして載るが `dependencies` には出ない）
 
-- `@smogon/calc`: ダメージ計算エンジン。monorepo root の `devDependencies` に
-  `file:vendor/smogon-calc-0.11.0.tgz` として配置し、workspace hoist で
-  `node_modules/@smogon/calc` に解決される。`tsdown.config.ts` の
-  `deps.alwaysBundle` で `dist/index.mjs` にインライン化されるため、
-  本パッケージの `dependencies` / `devDependencies` には含めない
 - `@ai-rotom/shared`: alias 経由で参照するソースディレクトリ
 - `@data/*` (JSON): tsdown が JSON import をインライン化
+- `@pokesol/pokesol-text-parser-ts`: ESM-only / ランタイム依存ゼロのため
+  `tsdown.config.ts` の `deps.alwaysBundle` でインライン化
 
 ### テスト実行時の @smogon/calc 解決経路
 
-- 通常の Vitest（`npm test`）: workspace hoist された `node_modules/@smogon/calc`
-  を解決（root の `devDependencies` 経由）
-- dist bundle 検証テスト（`npm run test:dist`）: `dist/index.mjs` に inline 済みの
-  コードを対象。node_modules には依存しない
+- 通常の Vitest（`npm test`）: mcp-server の `dependencies` 経由で hoist された
+  `node_modules/@smogon/calc` を解決
+- dist bundle 検証テスト（`npm run test:dist`）: `dist/index.mjs` を repo 内の
+  `node_modules` から起動するため、常に解決に成功する。利用者環境の依存解決は
+  ここでは検証できず、`scripts/pack-and-install-smoke.sh` の起動確認でしか
+  検証できない
 
 ## 検証スクリプト
 
-- `scripts/verify-dist-bundle.sh`: `dist/index.mjs` に `@smogon/calc` の
-  未 bundle 参照が残っていないか grep 検証
+- `scripts/verify-dist-bundle.sh`: `dist/index.mjs` が inline すべきもの
+  （`@pokesol/pokesol-text-parser-ts`）を inline し、external であるべきもの
+  （`@smogon/calc` / `@modelcontextprotocol/sdk` / `zod`）を import として
+  残しているかの双方向検証
 - `scripts/pack-and-install-smoke.sh`: `npm pack` → tarball 展開検査 →
-  scratch project への `npm install` までを自動化。publish 直前の
-  pre-flight として `publish.yml` で実行される
+  scratch project への `npm install` → install 物の起動確認までを自動化。
+  `ci.yml` の build job と `publish.yml` の両方で実行される
 
 ## `@smogon/calc` バージョン更新の手順
 
-1. `smogon/damage-calc` の該当 commit から tarball を生成（`vendor/README.md` 参照）
-2. `vendor/smogon-calc-<version>.tgz` を差し替え
-3. 依存を強制再解決して `package-lock.json` の integrity を更新。ファイル名が
-   変わる場合は root `package.json` の path も更新する
-   （ファイル名を据え置く場合、通常の `npm install` では反映されない。
-   手順は `vendor/README.md` のチェックリストを参照）
-4. `vendor/README.md` と `packages/mcp-server/THIRD_PARTY_LICENSES.md` を更新
-5. 全検証（`npm test` / `npm run build` / `bash scripts/verify-dist-bundle.sh` /
-   `npm run test:dist` / `bash scripts/pack-and-install-smoke.sh`）を通す
-6. 利用者に届けるタイミングで `version` bump して publish フローへ
-   （calc は `dist/index.mjs` にインライン化されるため、publish しない限り
-   更新は利用者に届かない）
+dependabot が起こす PR をマージし、検証スイート（`npm test` / `npm run build` /
+`bash scripts/verify-dist-bundle.sh` / `npm run test:dist` /
+`bash scripts/pack-and-install-smoke.sh`）を通す。
+
+意図した版上げ以外で `package-lock.json` の `@smogon/calc` の integrity が
+動いたらサプライチェーン事故として扱い、原因が確定するまで merge しない。
 
 ## 開発コマンド
 

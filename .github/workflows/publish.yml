@@ -55,7 +55,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify dist has no unbundled @smogon/calc references
+      - name: Verify dist bundle boundaries
         run: bash scripts/verify-dist-bundle.sh
 
       - name: Run dist bundle smoke tests

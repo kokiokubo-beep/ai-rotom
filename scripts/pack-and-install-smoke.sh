@@ -5,16 +5,21 @@
 # Validate the publish tarball for @nonz250/ai-rotom:
 #   1. `npm pack` the workspace into a tarball
 #   2. Extract and inspect the tarball's static structure
-#      - package.json must NOT declare @smogon/calc as a runtime dependency
-#      - vendor/ directory must not be shipped
-#      - dist/index.mjs must have no unbundled @smogon/calc references
+#      - package.json must declare @smogon/calc as a runtime dependency
+#      - top-level entries must match the expected shipping list exactly
 #      - LICENSE and THIRD_PARTY_LICENSES.md must be shipped
 #   3. `npm install` the tarball into a fresh scratch project to confirm the
 #      package is installable as-is
+#   4. Start the installed bin to confirm its external dependencies resolve
+#      outside this repository
 #
-# Runtime / JSON-RPC startup verification is intentionally OUT OF SCOPE; that is
-# handled by a separate `npm run test:dist` target. This script focuses on the
-# static shape of the published artifact and its installability.
+# Step 4 is the only check that exercises dependency resolution the way a user
+# sees it: `npm run test:dist` runs the bundle from inside the repo, where the
+# hoisted node_modules always satisfies the imports.
+#
+# JSON-RPC protocol behaviour is intentionally OUT OF SCOPE; that is handled by
+# `npm run test:dist`. This script focuses on the shape of the published
+# artifact, its installability, and whether it can start at all.
 
 set -euo pipefail
 
@@ -22,14 +27,36 @@ readonly WORKSPACE_NAME='@nonz250/ai-rotom'
 readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly EXTRACTED_PACKAGE_SUBDIR='package'
 
-# Reuses the same @smogon/calc detection patterns as verify-dist-bundle.sh.
-readonly PATTERN_STATIC_IMPORT='from[[:space:]]+["'"'"'`]@smogon/calc(/[^"'"'"'`]*)?["'"'"'`]'
-readonly PATTERN_DYNAMIC_IMPORT='import[[:space:]]*\([[:space:]]*["'"'"'`]@smogon/calc(/[^"'"'"'`]*)?["'"'"'`][[:space:]]*\)'
-readonly PATTERN_REQUIRE='require[[:space:]]*\([[:space:]]*["'"'"'`]@smogon/calc(/[^"'"'"'`]*)?["'"'"'`][[:space:]]*\)'
+# npm は files フィールドに書かれていなくても package.json と README.md を同梱する。
+# そのため files を読んで比較するのではなく、期待する集合を固定で持つ。
+# files を増やしたらここも手で追随する。
+readonly EXPECTED_TOP_LEVEL_ENTRIES=(
+  'LICENSE'
+  'README.md'
+  'THIRD_PARTY_LICENSES.md'
+  'dist'
+  'package.json'
+)
+
+readonly REQUIRED_LICENSE_FILES=(
+  'LICENSE'
+  'THIRD_PARTY_LICENSES.md'
+)
+
+# 起動後この秒数だけ生存していれば、依存解決は通ったと判断する。
+readonly STARTUP_WAIT_SECONDS=3
+# MCP の stdio transport は stdin の EOF で正常終了する。/dev/null を渡すと
+# 「依存解決に失敗して落ちた」のか「EOF で終了した」のか区別できなくなるため、
+# 判定が終わるまで stdin を開いたままにしておく。
+readonly STDIN_HOLD_SECONDS=10
 
 WORK_DIR=''
+SERVER_PID=''
 
 cleanup() {
+  if [[ -n "${SERVER_PID}" ]]; then
+    kill "${SERVER_PID}" 2>/dev/null || true
+  fi
   if [[ -n "${WORK_DIR}" && -d "${WORK_DIR}" ]]; then
     rm -rf "${WORK_DIR}"
   fi
@@ -65,7 +92,7 @@ if [[ ! -d "${PACKAGE_DIR}" ]]; then
 fi
 echo "  OK: extracted to ${PACKAGE_DIR}"
 
-echo ">>> Step 3/8: verify package.json has no @smogon/calc runtime dependency"
+echo ">>> Step 3/8: verify package.json declares @smogon/calc as a runtime dependency"
 HAS_SMOGON_DEP="$(
   node --input-type=module -e "
     import { readFileSync } from 'node:fs';
@@ -75,37 +102,28 @@ HAS_SMOGON_DEP="$(
   " "${PACKAGE_DIR}/package.json"
 )"
 readonly HAS_SMOGON_DEP
-if [[ "${HAS_SMOGON_DEP}" == 'yes' ]]; then
-  echo "::error::package.json still declares @smogon/calc as a runtime dependency" >&2
+if [[ "${HAS_SMOGON_DEP}" != 'yes' ]]; then
+  echo "::error::package.json does not declare @smogon/calc as a runtime dependency" >&2
+  echo "::error::the bundle imports it at runtime, so users would hit ERR_MODULE_NOT_FOUND" >&2
   exit 1
 fi
-echo "  OK: @smogon/calc is not declared as a runtime dependency"
+echo "  OK: @smogon/calc is declared as a runtime dependency"
 
-echo ">>> Step 4/8: verify vendor/ is not shipped"
-if [[ -e "${PACKAGE_DIR}/vendor" ]]; then
-  echo "::error::vendor/ directory must not be included in the published tarball" >&2
+echo ">>> Step 4/8: verify top-level entries match the expected shipping list"
+ACTUAL_TOP_LEVEL="$(cd "${PACKAGE_DIR}" && ls -A | LC_ALL=C sort)"
+readonly ACTUAL_TOP_LEVEL
+EXPECTED_TOP_LEVEL="$(printf '%s\n' "${EXPECTED_TOP_LEVEL_ENTRIES[@]}" | LC_ALL=C sort)"
+readonly EXPECTED_TOP_LEVEL
+if [[ "${ACTUAL_TOP_LEVEL}" != "${EXPECTED_TOP_LEVEL}" ]]; then
+  echo "::error::published tarball top-level entries differ from the expected list" >&2
+  echo "::error::check the files field in packages/mcp-server/package.json" >&2
+  diff <(printf '%s\n' "${EXPECTED_TOP_LEVEL}") <(printf '%s\n' "${ACTUAL_TOP_LEVEL}") >&2 || true
   exit 1
 fi
-echo "  OK: vendor/ is absent"
+echo "  OK: top-level entries are exactly as expected"
 
-echo ">>> Step 5/8: verify dist/index.mjs has no unbundled @smogon/calc refs"
-readonly DIST_FILE="${PACKAGE_DIR}/dist/index.mjs"
-if [[ ! -f "${DIST_FILE}" ]]; then
-  echo "::error::missing dist/index.mjs in published tarball: ${DIST_FILE}" >&2
-  exit 1
-fi
-for pattern in "${PATTERN_STATIC_IMPORT}" "${PATTERN_DYNAMIC_IMPORT}" "${PATTERN_REQUIRE}"; do
-  if grep -E -n "${pattern}" "${DIST_FILE}" >/dev/null 2>&1; then
-    echo "::error::unbundled @smogon/calc reference detected in ${DIST_FILE}" >&2
-    echo "::error::matching pattern: ${pattern}" >&2
-    grep -E -n "${pattern}" "${DIST_FILE}" >&2 || true
-    exit 1
-  fi
-done
-echo "  OK: dist/index.mjs is fully bundled"
-
-echo ">>> Step 6/8: verify LICENSE and THIRD_PARTY_LICENSES.md are shipped"
-for required_file in 'LICENSE' 'THIRD_PARTY_LICENSES.md'; do
+echo ">>> Step 5/8: verify LICENSE and THIRD_PARTY_LICENSES.md are shipped"
+for required_file in "${REQUIRED_LICENSE_FILES[@]}"; do
   if [[ ! -f "${PACKAGE_DIR}/${required_file}" ]]; then
     echo "::error::missing required file in published tarball: ${required_file}" >&2
     exit 1
@@ -113,13 +131,36 @@ for required_file in 'LICENSE' 'THIRD_PARTY_LICENSES.md'; do
   echo "  OK: ${required_file} is present"
 done
 
-echo ">>> Step 7/8: npm install tarball into a fresh scratch project"
+echo ">>> Step 6/8: npm install tarball into a fresh scratch project"
 (
   cd "${INSTALL_DIR}"
   npm init -y >/dev/null
   npm install "${TARBALL}" >/dev/null
 )
 echo "  OK: npm install succeeded"
+
+echo ">>> Step 7/8: start the installed bin and confirm external deps resolve"
+readonly INSTALLED_ENTRY="${INSTALL_DIR}/node_modules/${WORKSPACE_NAME}/dist/index.mjs"
+readonly STARTUP_LOG="${WORK_DIR}/startup.log"
+if [[ ! -f "${INSTALLED_ENTRY}" ]]; then
+  echo "::error::installed entry point not found: ${INSTALLED_ENTRY}" >&2
+  exit 1
+fi
+# 保証できるのは起動時に評価される static import の解決まで。lazy import や
+# 条件付き require で読まれる依存が将来増えたら、この検証はすり抜ける。
+sleep "${STDIN_HOLD_SECONDS}" | node "${INSTALLED_ENTRY}" >"${STARTUP_LOG}" 2>&1 &
+SERVER_PID=$!
+sleep "${STARTUP_WAIT_SECONDS}"
+if ! kill -0 "${SERVER_PID}" 2>/dev/null; then
+  echo "::error::installed bin exited within ${STARTUP_WAIT_SECONDS}s" >&2
+  echo "::error::a runtime dependency is likely missing from package.json dependencies" >&2
+  cat "${STARTUP_LOG}" >&2 || true
+  exit 1
+fi
+kill "${SERVER_PID}" 2>/dev/null || true
+wait "${SERVER_PID}" 2>/dev/null || true
+SERVER_PID=''
+echo "  OK: installed bin started and stayed alive for ${STARTUP_WAIT_SECONDS}s"
 
 echo ">>> Step 8/8: done"
 echo 'All pack/install smoke checks passed.'

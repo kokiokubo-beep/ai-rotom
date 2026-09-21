@@ -17,7 +17,7 @@
 
 - 言語: TypeScript 6（strict）
 - ダメージ計算エンジン: `@smogon/calc` の Gen 0 (Champions)
-  - npm 未 publish のため、`vendor/` 配下の tarball からインストール
+  - npm registry から取得（`packages/mcp-server` の `dependencies` に exact pin）
 - 入力検証: Zod
 - パッケージ管理: npm workspaces（workspace は `packages/mcp-server` のみ）
 - ビルド: tsdown（ESM bundle、JSON インライン化）
@@ -56,7 +56,6 @@ ai-rotom/
 │       ├── types/               # PokemonEntry, PokemonEntryProvider 等
 │       ├── analysis/            # タイプ相性・実数値・素早さ比較
 │       └── calc/                # ダメージ計算エンジン (DI 対応)
-├── vendor/                      # npm 未 publish のサードパーティ tarball
 └── packages/
     └── mcp-server/              # 唯一の workspace パッケージ
         └── src/
@@ -102,15 +101,16 @@ shared ──→ @smogon/calc (ランタイム), zod
 ### publish 物における依存関係
 
 shared コードは `@smogon/calc` をランタイム import するが、mcp-server の
-publish 対象（`dist/index.mjs`）では tsdown の `deps.alwaysBundle` により
-`@smogon/calc` を bundle inline 化する。publish 物の `package.json.dependencies`
-には `@smogon/calc` を含めない（npm registry に未 publish のパッケージのため、
-利用者環境で解決できず install に失敗する）。
+`package.json.dependencies` に exact pin（例: `"0.12.0"`）で宣言し、
+publish 物にはインライン化しない。利用者環境の `npm install` 時に
+npm registry から解決される。
 
-- 開発時: monorepo root の `devDependencies` で `file:vendor/...` を解決
-- publish 時: `dist/index.mjs` に全コードがインライン化され、利用者は追加 install 不要
-- ライセンス義務は `packages/mcp-server/THIRD_PARTY_LICENSES.md` で満たす
-- tarball の provenance は `vendor/README.md` に記録
+- 開発時: mcp-server の `dependencies` から workspace hoist され、
+  root `node_modules/@smogon/calc` が root の Vitest / tsdown からも解決される
+- publish 時: `dist/index.mjs` は import として残し、利用者が別途 install する
+- `@pokesol/pokesol-text-parser-ts` は引き続き bundle inline 化する
+  （ESM-only / ランタイム依存ゼロのため）
+- `@pokesol` のライセンス義務は `packages/mcp-server/THIRD_PARTY_LICENSES.md` で満たす
 
 ### Alias 設定
 
@@ -133,10 +133,9 @@ TS6059 エラーにならないようにしている。
 - `dist/index.mjs` にインライン bundle するもの:
   - `data/champions/*.json`（マスターデータ）
   - `shared/src/*`（共有ライブラリ）
-  - `@smogon/calc`（npm 未 publish のため bundle 必須）
   - `@pokesol/pokesol-text-parser-ts`（ESM-only / ランタイム依存ゼロ。publish 物の `dependencies` に載せない方針で bundle inline）
 - bundle しないもの（利用者環境で npm install される）:
-  - `@modelcontextprotocol/sdk`, `zod`（npm registry 公開パッケージ）
+  - `@modelcontextprotocol/sdk`, `zod`, `@smogon/calc`（npm registry 公開パッケージ）
 - npm publish 時の同梱は `dist` / `LICENSE` / `THIRD_PARTY_LICENSES.md`（`files` フィールド参照）
 
 ### publish 後のチェックリスト

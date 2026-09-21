@@ -3,7 +3,7 @@
  *
  * 目的:
  *   - publish 直前に dist/index.mjs が
- *     (a) @smogon/calc を bundle 内に取り込んでいる
+ *     (a) runtime dependencies を bundle に取り込まず import として残している
  *     (b) Node だけで起動し MCP JSON-RPC の initialize に応答する
  *     (c) 代表的な calculate_damage_single のゴールデンに一致する応答を返す
  *   を同時に保証する。
@@ -154,27 +154,21 @@ describe("dist bundle integrity", () => {
     bundleSource = await readFile(DIST_PATH, "utf8");
   });
 
-  const SMOGON_RESIDUE_PATTERNS: RegExp[] = [
-    /\bfrom\s+["'`]@smogon\/calc(\/[^"'`]*)?["'`]/,
-    /\bimport\s*\(\s*["'`]@smogon\/calc(\/[^"'`]*)?["'`]\s*\)/,
-    /\brequire\s*\(\s*["'`]@smogon\/calc(\/[^"'`]*)?["'`]\s*\)/,
-  ];
+  const EXTERNAL_PACKAGES = [
+    "@smogon/calc",
+    "@modelcontextprotocol/sdk",
+    "zod",
+  ] as const;
+
+  const staticImportPattern = (pkg: string): RegExp =>
+    new RegExp(`\\bfrom\\s+["'\`]${pkg}(/[^"'\`]*)?["'\`]`);
 
   it("dist/index.mjs exists", async () => {
     await expect(access(DIST_PATH)).resolves.toBeUndefined();
   });
 
-  it("has no unbundled @smogon/calc imports", () => {
-    for (const pattern of SMOGON_RESIDUE_PATTERNS) {
-      expect(
-        bundleSource,
-        `pattern ${pattern} should not match the bundle`,
-      ).not.toMatch(pattern);
-    }
-  });
-
-  it("contains inlined @smogon/calc logic", () => {
-    expect(bundleSource).toMatch(/calculate|Pokemon|Generation/);
+  it.each(EXTERNAL_PACKAGES)("keeps %s as an external import", (pkg) => {
+    expect(bundleSource).toMatch(staticImportPattern(pkg));
   });
 });
 
