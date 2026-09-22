@@ -567,10 +567,15 @@ describe("get_pokemon_info", () => {
       expect(result.learnableMoveCount).toBeGreaterThan(0);
     });
 
-    it("メガシンカ後のフォルムは learnset を持たないため learnableMoveCount が null のまま", () => {
+    it("メガシンカ後のフォルムは基本種の learnset を継承する（フォーク独自）", () => {
+      // ゲーム仕様: 技を覚えるのは基本フォームで、メガ進化後も技構成は変わらない。
+      // 本家はメガを learnset 未登録のまま扱うが、フォークは baseSpecies から継承させる。
       const entry = pokemonById.get(toDataId("Starmie-Mega"))!;
+      const base = pokemonById.get(toDataId("Starmie"))!;
       const result = buildPokemonInfoResult(entry);
-      expect(result.learnableMoveCount).toBeNull();
+      const baseResult = buildPokemonInfoResult(base);
+      expect(result.learnableMoveCount).toBe(baseResult.learnableMoveCount);
+      expect(result.learnableMoveCount).toBeGreaterThan(0);
     });
   });
 });

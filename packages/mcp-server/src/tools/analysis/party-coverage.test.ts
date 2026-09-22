@@ -760,9 +760,9 @@ describe("analyze_party_coverage logic", () => {
       expect(out.attackingTypes.some((t) => t.type === "Fire")).toBe(true);
     });
 
-    it("技未指定のメガシンカ後フォルムは learnset を持たないため attackingTypes が空のまま", () => {
+    it("技未指定のメガシンカ後フォルムは基本種の learnset から attackingTypes を得る（フォーク独自）", () => {
       const out = analyzePartyCoverage({ myParty: [{ name: "メガスターミー" }] });
-      expect(out.attackingTypes).toHaveLength(0);
+      expect(out.attackingTypes.length).toBeGreaterThan(0);
     });
   });
 });

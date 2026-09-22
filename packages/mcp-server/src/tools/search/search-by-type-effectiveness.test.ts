@@ -151,8 +151,8 @@ describe("search_pokemon_by_type_effectiveness logic", () => {
       expect(hasAttackingMoveOfType(toDataId("Cinderace"), "Fire")).toBe(true);
     });
 
-    it("メガシンカ後のフォルムは learnset を持たないため false になる", () => {
-      expect(hasAttackingMoveOfType(toDataId("Starmie-Mega"), "Water")).toBe(false);
+    it("メガシンカ後のフォルムは基本種の learnset を継承するため true になる（フォーク独自）", () => {
+      expect(hasAttackingMoveOfType(toDataId("Starmie-Mega"), "Water")).toBe(true);
     });
   });
 

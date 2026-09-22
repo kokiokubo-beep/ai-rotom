@@ -159,11 +159,12 @@ describe("get_pokemon_summary logic", () => {
       expect(profile.byType.some((t) => t.type === "Fire")).toBe(true);
     });
 
-    it("メガシンカ後のフォルムは learnset を持たないため count が 0 のまま", () => {
+    it("メガシンカ後のフォルムは基本種の learnset を継承する（フォーク独自）", () => {
       const typeJaMap = new Map(championsTypes.map((t) => [t.name, t.nameJa]));
       const profile = buildLearnableMovesProfile(toDataId("Starmie-Mega"), typeJaMap);
-      expect(profile.count).toBe(0);
-      expect(profile.byType).toHaveLength(0);
+      const baseProfile = buildLearnableMovesProfile(toDataId("Starmie"), typeJaMap);
+      expect(profile.count).toBe(baseProfile.count);
+      expect(profile.count).toBeGreaterThan(0);
     });
   });
 
